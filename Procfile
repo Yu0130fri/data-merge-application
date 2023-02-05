@@ -1,0 +1,1 @@
+web: gunicorn 'flaskr.apps.app:create_app("local")' --log-file=-
