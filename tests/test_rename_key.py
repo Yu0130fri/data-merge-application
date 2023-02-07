@@ -1,5 +1,4 @@
-import pytest
-from src.models.rename_key import rename_sc_data_keys
+from flaskr.apps.data_merge_app.models.rename_key import rename_sc_data_keys
 
 
 @pytest.fixture

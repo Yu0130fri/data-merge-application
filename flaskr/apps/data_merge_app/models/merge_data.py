@@ -1,7 +1,9 @@
+from pathlib import Path
+
 from .read_txt import read_main_data, read_sc_data
 
 
-def merge_data(sc_path: str, main_path: str) -> list[dict[str, str]]:
+def merge_data(sc_path: Path, main_path: Path) -> list[dict[str, str]]:
     """SCデータと本調査のデータを結合する
     本調査のデータにないMIDは削除
 
