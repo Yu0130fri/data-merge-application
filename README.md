@@ -5,17 +5,21 @@
 ```
 python -m venv .venv
 ```
-4. requirements.txtを読み込む
+4. 仮想環境を起動する
+```
+source .venv/bin/activate
+```
+5. requirements.txtを読み込む
 ```
 pip install -r requirements.txt
 ```
-5. data-merge-applicationに.envファイルを作成
-6. .envファイルに以下を記載
+6. data-merge-applicationに.envファイルを作成
+7. .envファイルに以下を記載
 ```
 FLASK_APP=flaskr.apps.app:create_app("local")
 FLASK_DEBUG=True
 ```
-7. flaskを起動してみる
+8. flaskを起動してみる
 ```
 flask run
 ```
