@@ -15,7 +15,7 @@ pip install -r requirements.txt
 FLASK_APP=flaskr.apps.app:create_app("local")
 FLASK_DEBUG=True
 ```
-5. flaskを起動してみる
+7. flaskを起動してみる
 ```
 flask run
 ```
