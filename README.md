@@ -9,6 +9,12 @@ python -m venv .venv
 ```
 pip install -r requirements.txt
 ```
+5. data-merge-applicationに.envファイルを作成
+6. .envファイルに以下を記載
+```
+FLASK_APP=flaskr.apps.app:create_app("local")
+FLASK_DEBUG=True
+```
 5. flaskを起動してみる
 ```
 flask run
