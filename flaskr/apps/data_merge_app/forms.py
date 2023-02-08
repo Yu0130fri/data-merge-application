@@ -19,4 +19,19 @@ class UploadTxtForm(FlaskForm):
         ],
     )
 
+    sc_layout_file = FileField(
+        "Screening Layout File",
+        validators=[
+            FileRequired("スクリーニングのレイアウトファイルを選択してください"),
+            FileAllowed(["txt"], ".txt形式でアップロードしてください"),
+        ],
+    )
+    main_layout_file = FileField(
+        "Main Layout File",
+        validators=[
+            FileRequired("本調査のレイアウトファイルを選択してください"),
+            FileAllowed(["txt"], ".txt形式でアップロードしてください"),
+        ],
+    )
+
     submit_form = SubmitField("アップロード")

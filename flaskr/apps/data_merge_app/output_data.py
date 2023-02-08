@@ -1,11 +1,12 @@
 from csv import DictWriter
+from pathlib import Path
 
 from .models.merge_data import merge_data
 
 _FIRST_ELEM = 0
 
 
-def main(sc_path: str, main_path: str, output_path: str) -> None:
+def output_data(sc_path: Path, main_path: Path, output_path: Path) -> None:
     merged_data = merge_data(sc_path=sc_path, main_path=main_path)
 
     header = merged_data[_FIRST_ELEM].keys()

@@ -1,4 +1,7 @@
+import zipfile
+from glob import glob
 from pathlib import Path
+from zipfile import ZipFile
 
 from flask import (
     Blueprint,
@@ -12,11 +15,17 @@ from flask import (
 )
 
 from .forms import UploadTxtForm
-from .main import main
 from .models.recreate_dir import recreate_dir
+from .output_data import output_data
+from .output_layout import output_layout
 
 _FILE_NAME = "output.txt"
+_LAYOUT_FILE_NAME = "output_layout.txt"
+_OUTPUT_ZIP_NAME = "output.zip"
 _TEXT_PLAIN = "text/plain"
+_ZIP_APPLICATION = "application/zip"
+
+_BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 data_merge_app = Blueprint("", __name__, template_folder="templates")
 
@@ -29,9 +38,11 @@ def index():
     form = UploadTxtForm()
 
     if form.validate_on_submit():
-        # アップロードされた画像ファイルの取得
+        # アップロードされたtxtファイルの取得
         sc_file = form.sc_file.data
         main_file = form.main_file.data
+        sc_layout_file = form.sc_layout_file.data
+        main_layout_file = form.main_layout_file.data
 
         # ファイルを保存しないため、sc_path、main_path、output_pathにディレクトリがある場合は削除
         # その後、空のディレクトリを作成しておく
@@ -40,14 +51,21 @@ def index():
 
         sc_path = Path(upload_path, sc_file.filename)
         main_path = Path(upload_path, main_file.filename)
+        sc_layout_path = Path(upload_path, sc_layout_file.filename)
+        main_layout_path = Path(upload_path, main_layout_file.filename)
 
         # ファイルを保存
         sc_file.save(sc_path)
         main_file.save(main_path)
+        sc_layout_file.save(sc_layout_path)
+        main_layout_file.save(main_layout_path)
 
         output_file_path = Path(output_path, _FILE_NAME)
+        output_layout_file_path = Path(output_path, _LAYOUT_FILE_NAME)
+
         # データをマージする
-        main(sc_path, main_path, output_file_path)
+        output_data(sc_path, main_path, output_file_path)
+        output_layout(sc_layout_path, main_layout_path, output_layout_file_path)
 
         # 中にあるファイルを全て削除しておく
         recreate_dir(upload_path)
@@ -60,18 +78,31 @@ def index():
 
 @data_merge_app.route("/download", methods=["GET", "POST"])
 def download_file():
-    output_path = current_app.config["OUTPUT_FOLDER"]
+    output_path = Path(current_app.config["OUTPUT_FOLDER"])
     output_file_path = Path(output_path, _FILE_NAME)
+    output_layout_file_path = Path(output_path, _LAYOUT_FILE_NAME)
+
+    output_zip_path = Path(output_path, _OUTPUT_ZIP_NAME)
+
+    # zipを作成
+    _make_zip(
+        output_file_path.relative_to(_BASE_DIR),
+        output_layout_file_path.relative_to(_BASE_DIR),
+        output_zip_path,
+    )
 
     response = make_response()
-    with open(output_file_path, "rb") as f:
-        response.data = f.read()
+    # with open(output_file_path, "rb") as f:
+    #     response.data = f.read()
+
+    response.data = open(output_zip_path, "rb").read()
 
     # 読み取り後にファイル削除
     recreate_dir(output_path)
 
-    response.headers["Content-Disposition"] = "attachment; filename=" + _FILE_NAME
-    response.mimetype = _TEXT_PLAIN
+    response.headers["Content-Disposition"] = "attachment; filename=" + _OUTPUT_ZIP_NAME
+    # response.mimetype = _TEXT_PLAIN
+    response.mimetype = _ZIP_APPLICATION
 
     return response
 
@@ -84,3 +115,10 @@ def download_file():
 )
 def complete_merge():
     return render_template("data_merge_app/download.html")
+
+
+def _make_zip(data_path: Path, layout_path: Path, zip_file_path: Path) -> ZipFile:
+    print(zip_file_path)
+    with ZipFile(zip_file_path, "w") as zip:
+        zip.write(data_path)
+        zip.write(layout_path)

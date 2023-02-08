@@ -8,6 +8,8 @@ from .rename_key import rename_sc_data_keys
 
 _MID_NUM = 0
 
+_SHIFT_JIS = "shift_jis"
+
 _QUESTION_NUMBER_COL = 0
 _ITEM_NAME_COL = 2
 _LABEL_COL = 3
@@ -15,7 +17,7 @@ _LABEL_COL = 3
 
 def read_sc_data(path: Path) -> list[dict[str, str]]:
     if detect_encoding(path):
-        with open(path, "r", encoding="shift_jis") as f:
+        with open(path, "r", encoding=_SHIFT_JIS) as f:
             reader = csv.DictReader(f, delimiter="\t")
             sc_data = [rename_sc_data_keys(row) for row in reader]
 
@@ -29,7 +31,7 @@ def read_sc_data(path: Path) -> list[dict[str, str]]:
 
 def read_main_data(path: Path) -> list[dict[str, str]]:
     if detect_encoding(path):
-        with open(path, "r", encoding="shift_jis") as f:
+        with open(path, "r", encoding=_SHIFT_JIS) as f:
             reader = csv.DictReader(f, delimiter="\t")
             main_data = [row for row in reader]
 
@@ -43,7 +45,7 @@ def read_main_data(path: Path) -> list[dict[str, str]]:
 
 def read_sc_layout(path: Path) -> list[list[str]]:
     if detect_encoding(path):
-        with open(path, "r", encoding="shift_jis") as f:
+        with open(path, "r", encoding=_SHIFT_JIS) as f:
             reader = csv.reader(f, delimiter="\t")
 
             layout_rows: list[list[str]] = []
@@ -68,7 +70,7 @@ def read_sc_layout(path: Path) -> list[list[str]]:
 
 def read_main_layout(path: Path) -> list[list[str]]:
     if detect_encoding(path):
-        with open(path, "r", encoding="shift_jis") as f:
+        with open(path, "r", encoding=_SHIFT_JIS) as f:
             reader = csv.reader(f, delimiter="\t")
             layout_rows = [row for row in reader]
 

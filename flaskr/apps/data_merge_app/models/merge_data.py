@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from .read_txt import read_main_data, read_sc_data
+from .read_txt import read_main_data, read_main_layout, read_sc_data, read_sc_layout
+
+_DETAIL_COLS = 91
 
 
 def merge_data(sc_path: Path, main_path: Path) -> list[dict[str, str]]:
@@ -38,3 +40,24 @@ def merge_data(sc_path: Path, main_path: Path) -> list[dict[str, str]]:
             continue
 
     return merged_dict_list
+
+
+def merge_layout(sc_path: Path, main_path: Path) -> list[list[str]]:
+    """SCと本調査のレイアウトをマージする
+
+    Args:
+        sc_path (Path): SCのレイアウトがあるPath
+        main_path (Path): 本調査のレイアウトがあるPath
+
+    Returns:
+        list[list[str]]: レイアウトの行を格納したリストの二次元配列
+    """
+
+    sc_layout = read_sc_layout(sc_path)
+    main_layout = read_main_layout(main_path)
+
+    header_list = [main_layout[0]]
+    sc_list = sc_layout[1:]
+    main_list = main_layout[_DETAIL_COLS:]  # 本調査のデータは92行目から
+
+    return header_list + sc_list + main_list
