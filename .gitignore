@@ -171,3 +171,4 @@ cython_debug/
 /samples/*
 /tests/test_data/*
 /output_files/*
+.DS_Store
