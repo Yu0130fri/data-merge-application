@@ -5,14 +5,16 @@ endblock %} {% block content %}
   <div class="row justify-content-evenly text-center mt-5">
     <div class="col-6">
       <a
-        href="{{ url_for('download_file') }}"
+        href="{{ url_for('data_merge_app.download_file') }}"
         class="btn btn-primary btn-lg col-md-6 p-3"
         download
         >Download</a
       >
     </div>
     <div class="col-6">
-      <a href="{{url_for('index')}}" class="btn btn-primary btn-lg col-md-6 p-3"
+      <a
+        href="{{url_for('data_merge_app.index')}}"
+        class="btn btn-primary btn-lg col-md-6 p-3"
         >ページTOPに戻る</a
       >
     </div>

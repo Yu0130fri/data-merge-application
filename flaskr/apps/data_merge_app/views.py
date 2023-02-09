@@ -1,5 +1,3 @@
-import zipfile
-from glob import glob
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -10,7 +8,6 @@ from flask import (
     make_response,
     redirect,
     render_template,
-    send_file,
     url_for,
 )
 
@@ -27,7 +24,9 @@ _ZIP_APPLICATION = "application/zip"
 
 _BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
-data_merge_app = Blueprint("", __name__, template_folder="templates")
+data_merge_app = Blueprint(
+    "data_merge_app", __name__, template_folder="templates", static_folder="static"
+)
 
 
 @data_merge_app.route("/", methods=["GET", "POST"])
@@ -71,7 +70,7 @@ def index():
         recreate_dir(upload_path)
 
         flash("マージが正常に完了しました。")
-        return redirect(url_for("complete_merge"))
+        return redirect(url_for("data_merge_app.complete_merge"))
 
     return render_template("data_merge_app/index.html", form=form)
 
