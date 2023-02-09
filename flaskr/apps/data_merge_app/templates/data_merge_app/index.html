@@ -6,12 +6,12 @@
     スクリーニングデータと本調査をマージする簡易ページ
   </div>
   <div class="card-body">
-    <h5 class="card-title">
+    <h5 class="card-title" id="description">
       それぞれにファイルをアップロードして「マージする」をクリックするだけ！
     </h5>
 
     <form
-      action="{{ url_for('index') }}"
+      action="{{ url_for('data_merge_app.index') }}"
       enctype="multipart/form-data"
       method="post"
     >
