@@ -1,5 +1,5 @@
 # 始め方
-1. レポジトリをcloneする
+1. レポジトリをcloneする（対象のブランチに必ず切り替える）
 2. data-merge-applicationの中に移動する
 3. 仮想環境を構築する
 ```
@@ -16,7 +16,7 @@ pip install -r requirements.txt
 6. data-merge-applicationに.envファイルを作成
 7. .envファイルに以下を記載
 ```
-FLASK_APP=flaskr.apps.app:create_app("local")
+FLASK_APP=apps.app:create_app("local")
 FLASK_DEBUG=True
 ```
 8. flaskを起動してみる
