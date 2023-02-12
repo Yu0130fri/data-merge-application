@@ -3,7 +3,7 @@ from pathlib import Path
 from chardet import detect
 from flask import flash
 
-_shift_jis = "SHIFT_JIS"
+encoding_dict = {"SHIFT_JIS": "shift_jis", "ascii": "utf-8", "UTF-8": "utf-8"}
 
 
 def detect_encoding(path: Path) -> bool:
@@ -11,6 +11,7 @@ def detect_encoding(path: Path) -> bool:
         c = f.read()
         encoding = detect(c)["encoding"]
 
-    if encoding != _shift_jis:
+    if encoding not in encoding_dict:
+        print("encoding", encoding)
         flash("this file is not 'shift_jis'. please change file")
     return True
