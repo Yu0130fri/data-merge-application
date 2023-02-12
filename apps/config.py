@@ -1,6 +1,6 @@
 from pathlib import Path
 
-basedir = Path(__file__).parent.parent
+basedir = Path(__file__).absolute().parent.parent
 
 
 class BaseConfig:
