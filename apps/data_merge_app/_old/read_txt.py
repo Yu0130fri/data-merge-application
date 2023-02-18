@@ -3,8 +3,8 @@ from pathlib import Path
 
 from flask import flash
 
-from .detect_encoding import detect_encoding
-from .rename_key import rename_sc_data_keys
+from ..models.detect_encoding import detect_encoding
+from ..models.rename_key import rename_sc_data_keys
 
 _MID_NUM = 0
 
