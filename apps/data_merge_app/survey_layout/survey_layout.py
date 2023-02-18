@@ -79,8 +79,9 @@ class SurveyLayout(BaseModel):
         return header_list + sc_list + main_list
 
     def merge_layout_with_flag(self, flag_names: list[str]) -> list[list[str]]:
-        if len(self.main_layout_list) != len(flag_names):
-            raise ValueError("選択したレイアウトの数とラベル数が一致しません")
+        # TODO フロント側で制御予定
+        # if len(self.main_layout_list) != len(flag_names):
+        #     raise ValueError("選択したレイアウトの数とラベル数が一致しません")
 
         valid_sample_num: int = 0
         for idx, main_layout in enumerate(self.main_layout_list):

@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 from typing import Optional
 
-from ..models.merge_layout import merge_layout, merge_main_layout
+from .merge_layout import merge_layout, merge_main_layout
 
 
 def output_layout(
