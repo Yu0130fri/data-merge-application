@@ -2,7 +2,7 @@ from csv import DictWriter
 from pathlib import Path
 from typing import Optional
 
-from .models.merge_data import merge_data, merge_main_data
+from .merge_data import merge_data, merge_main_data
 
 
 def output_data(

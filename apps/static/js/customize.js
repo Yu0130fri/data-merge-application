@@ -1,3 +1,13 @@
+function addInputFiles(){
+    addInputFileBtn();
+    addLayoutFileBtn();
+}
+
+function deleteInputFileBtn(){
+    deleteBtn();
+    deleteLayoutBtn();
+}
+
 function addInputFileBtn() {
     let countElemNum = document.getElementsByClassName('input-data-btn').length + 1;
     
@@ -15,6 +25,35 @@ function addInputFileBtn() {
     `
 
     achElem.append(divElem);
+
+    let achFlagElem = document.getElementById('anchor-flag');
+    let diff;
+    if (achFlagElem.childElementCount > 0){
+        if (achFlagElem.childElementCount > countElemNum){
+            diff = achFlagElem.childElementCount - countElemNum;
+            let flag_text_div = document.getElementsByClassName('flag-text');
+            let flag_text_div_length = flag_text_div.length;
+            for (let i=1; i<diff; i++){
+                flag_text_div[flag_text_div_length-i].remove();
+            }
+        }else if(achFlagElem.childElementCount <= countElemNum){
+            diff = countElemNum - achFlagElem.childElementCount + 1;
+            for (let i=1; i<=diff; i++){
+                let divElem = document.createElement('div');
+                divElem.className = 'flag-text my-2'
+                let idName= achFlagElem.childElementCount + i;
+                let divId = 'flag-name-' + (idName).toString();
+            
+                divElem.innerHTML = `
+                <label for="${divId}" class="form-label fs-10 card-text">本調査-${idName}</label>
+                <input type="text" class="form-control" name="${divId}" id="${divId}" placeholder="本調査-${idName}のラベル">
+                `
+                achFlagElem.append(divElem);
+            }
+        }
+
+    }
+
 }
 
 function deleteBtn() {
@@ -26,6 +65,38 @@ function deleteBtn() {
         let divInputDataBtnLength = divInputDataBtn.length
 
         divInputDataBtn[divInputDataBtnLength - 1].remove();
+    }
+
+    let achFlagElem = document.getElementById('anchor-flag');
+    let divInputDataBtn = document.getElementsByClassName("input-data-btn");
+    let divInputDataBtnLength = divInputDataBtn.length;
+    let diff;
+    if (achFlagElem.childElementCount > 0){
+        if (achFlagElem.childElementCount > divInputDataBtnLength){
+            diff = achFlagElem.childElementCount - divInputDataBtnLength;
+            let flag_text_div = document.getElementsByClassName('flag-text');
+            let flag_text_div_length = flag_text_div.length;
+            for (let i=1; i<diff; i++){
+                flag_text_div[flag_text_div_length-i].remove();
+            }
+        }else if(achFlagElem.childElementCount <= divInputDataBtnLength){
+            diff = divInputDataBtnLength - achFlagElem.childElementCount + 1;
+            for (let i=1; i<=diff; i++){
+                let divElem = document.createElement('div');
+                divElem.className = 'flag-text my-2 row'
+                let idName= achFlagElem.childElementCount + i;
+                let divId = 'flag-name-' + (idName).toString();
+            
+                divElem.innerHTML = `
+                <label for="${divId}" class="col-sm-2 col-form-label card-text">本調査-${idName}</label>
+                <div class="col-sm-5">
+                <input type="text" class="form-control" name="${divId}" id="${divId}" placeholder="本調査-${idName}のラベル">
+                </div>
+                
+                `
+                achFlagElem.append(divElem);
+            }
+        }
     }
 }
 

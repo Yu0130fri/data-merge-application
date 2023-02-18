@@ -2,11 +2,12 @@ import os
 from glob import glob
 from pathlib import Path
 
-from .read_txt import read_main_layout, read_sc_layout
+from .._old.read_txt import read_main_layout, read_sc_layout
 
-_DETAIL_COLS = 91
+_DETAIL_COLS = 90
 _COMMON_COL_NUM = 0
 _CURRENT_DIR = Path.cwd()
+_VALID_SAMPLE_ELEM = 13
 
 
 def merge_layout(sc_path: Path, main_dir_path: Path) -> list[list[str]]:
@@ -50,23 +51,18 @@ def merge_main_layout(main_dir_path: Path) -> list[list[str]]:
     for idx, file_name in enumerate(main_files):
         file_path = Path(file_name)
         layout_data = read_main_layout(file_path)
-        common = _extract_common(layout_data)
-        valid_sample_num += int(common[-1])
+        common = layout_data[_COMMON_COL_NUM]
+        valid_sample_num += int(common[_VALID_SAMPLE_ELEM])
         if idx == 0:
             merged_layout = layout_data
         else:
             merged_layout += layout_data[_DETAIL_COLS:]
 
-    merged_layout[_COMMON_COL_NUM][-1] = str(valid_sample_num)
+    merged_layout[_COMMON_COL_NUM][_VALID_SAMPLE_ELEM] = str(valid_sample_num)
     # レイアウトはマージした2次配列の重複を取り除くだけで良いため、重複を削除する
     merged_layout = _get_unique_list(merged_layout)
 
     return merged_layout
-
-
-def _extract_common(layout_data: list[list[str]]) -> list[str]:
-    """レイアウトの1行目だけ取り出す"""
-    return layout_data[_COMMON_COL_NUM]
 
 
 def _get_unique_list(data: list[list[str]]) -> list[list[str]]:

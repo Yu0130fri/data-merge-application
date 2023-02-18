@@ -3,11 +3,9 @@ from pathlib import Path
 import pytest
 
 from flaskr.apps.data_merge_app.models import detect_encoding
-from flaskr.apps.data_merge_app.models.read_txt import (
-    read_main_data,
-    read_sc_data,
-    read_sc_layout,
-)
+from flaskr.apps.data_merge_app.models.read_txt import (read_main_data,
+                                                        read_sc_data,
+                                                        read_sc_layout)
 
 _ABS_PATH = Path("tests/test_data").resolve()
 

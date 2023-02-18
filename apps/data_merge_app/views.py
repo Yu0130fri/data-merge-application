@@ -13,10 +13,8 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-# from .forms import UploadTxtForm
 from .models.recreate_dir import recreate_dir
-from .output_data import output_data
-from .output_layout import output_layout
+from .survey_model import SurveyModel
 
 _FILE_NAME = "output.txt"
 _LAYOUT_FILE_NAME = "output_layout.txt"
@@ -32,6 +30,8 @@ _BASE_DIR = Path(__file__).resolve().parent.parent.parent
 _DEFAULT_MAIN_FILE_NAME = "main-0"
 _SC_FILE_ID = "sc-file"
 _SC_LAYOUT_FILE_ID = "sc-layout-file"
+
+_GENERATE_FLAG = "flag-name-0"
 
 
 data_merge_app = Blueprint(
@@ -55,9 +55,6 @@ def index():
     recreate_dir(upload_main_layout_path)
     recreate_dir(output_path)
 
-    # form = UploadTxtForm()
-
-    # if form.validate_on_submit():
     if request.method == "POST":
         if _DEFAULT_MAIN_FILE_NAME in request.files:
             # scファイルがあるか確認し、あれば読み込む
@@ -65,6 +62,8 @@ def index():
                 # スクリーニングデータの読み込み
                 sc_file = request.files[_SC_FILE_ID]
                 sc_file_filename = sc_file.filename
+
+                # クロスサイトインジェクション対策
                 if sc_file and _allowed_file(sc_file_filename):
                     sc_file_filename = secure_filename(sc_file_filename)
                     sc_file_path = Path(upload_sc_path, sc_file_filename)
@@ -76,6 +75,7 @@ def index():
                 # レイアウトファイルの読み込み
                 sc_layout = request.files[_SC_LAYOUT_FILE_ID]
                 sc_layout_filename = sc_layout.filename
+                # クロスサイトインジェクション対策
                 if sc_layout and _allowed_file(sc_layout_filename):
                     sc_layout_filename = secure_filename(sc_layout_filename)
                     sc_layout_file_path = Path(
@@ -97,11 +97,11 @@ def index():
                 sc_file_path = None
 
             # 本調査の読み込み
-            loop_check: bool = True  # type:ignore
             i = 0
-            while loop_check is True:
-                file_id = "main-" + str(i)
-                if file_id in request.files:
+            while True:
+                try:
+                    file_id = "main-" + str(i)
+
                     main_file = request.files[file_id]
                     main_filename = main_file.filename
 
@@ -113,17 +113,16 @@ def index():
                             main_file.save(main_file_path)
                         else:
                             break
-
                     i += 1
-                else:
-                    loop_check = False
+                except Exception:
+                    break
 
             # 本調査のレイアウトファイルをload
-            loop_check_layout: bool = True  # type:ignore
             i = 0
-            while loop_check_layout is True:
-                layout_file_id = "main-layout-" + str(i)
-                if layout_file_id in request.files:
+            while True:
+                try:
+                    layout_file_id = "main-layout-" + str(i)
+
                     main_layout_file = request.files[layout_file_id]
                     main_layout_filename = main_layout_file.filename
 
@@ -139,18 +138,35 @@ def index():
                             break
 
                     i += 1
-                else:
-                    loop_check_layout = False
+                except Exception:
+                    break
+
+        # アップロードされたデータを読み込んでインスタンスを生成
+        survey_data = SurveyModel.load_files(
+            sc_file_path, upload_main_path, sc_layout_file_path, upload_main_layout_path
+        )
 
         # アウトプットファイルを設定
         output_file_path = Path(output_path, _FILE_NAME)
         output_layout_file_path = Path(output_path, _LAYOUT_FILE_NAME)
 
         # データをマージする
-        output_data(sc_file_path, upload_main_path, output_file_path)
-        output_layout(
-            sc_layout_file_path, upload_main_layout_path, output_layout_file_path
-        )
+        flag_names: list[str] | None = []  # type:ignore
+        if _GENERATE_FLAG in request.form:
+            i = 0
+            while True:
+                flag_name = "flag-name-" + str(i)
+                try:
+                    flag_names.append(str(request.form[flag_name]))
+                    i += 1
+                except Exception:
+                    break
+        else:
+            flag_names = None
+
+        # マージしたデータを出力
+        survey_data.output(output_file_path, flag_names)
+        survey_data.output_layout(output_layout_file_path, flag_names)
 
         # 中にあるファイルを全て削除しておく
         recreate_dir(upload_sc_path)

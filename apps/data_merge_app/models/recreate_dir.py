@@ -1,8 +1,9 @@
 import os
 import shutil
+from pathlib import Path
 
 
-def recreate_dir(dir_path: str) -> None:
+def recreate_dir(dir_path: Path) -> None:
     if os.path.isdir(dir_path):
         shutil.rmtree(dir_path)
 
