@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from apps.data_merge_app.models.merge_layout import merge_main_layout
+from apps.data_merge_app._old.merge_layout import merge_main_layout
 
 _ABS_PATH = Path("tests/test_data").absolute()
 

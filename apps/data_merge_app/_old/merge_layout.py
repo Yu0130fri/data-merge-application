@@ -2,7 +2,7 @@ import os
 from glob import glob
 from pathlib import Path
 
-from .._old.read_txt import read_main_layout, read_sc_layout
+from .read_txt import read_main_layout, read_sc_layout
 
 _DETAIL_COLS = 90
 _COMMON_COL_NUM = 0
