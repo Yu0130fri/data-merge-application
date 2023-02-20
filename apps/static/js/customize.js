@@ -1,11 +1,24 @@
+
+
 function addInputFiles(){
-    addInputFileBtn();
-    addLayoutFileBtn();
+    let toggle_btn = document.getElementById('generate-flag').checked;
+    if (toggle_btn){
+        addInputFileBtn();
+    } else {
+        addInputFileBtn();
+        addLayoutFileBtn();
+    }
+
 }
 
 function deleteInputFileBtn(){
-    deleteBtn();
-    deleteLayoutBtn();
+    let toggle_btn = document.getElementById('generate-flag').checked;
+    if (toggle_btn){
+        deleteBtn();
+    }else {
+        deleteBtn();
+        deleteLayoutBtn();
+    }
 }
 
 function addInputFileBtn() {
