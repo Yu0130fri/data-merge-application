@@ -29,7 +29,8 @@ class SurveyData(BaseModel):
         if not os.path.isdir(main_dir_path):
             raise ValueError("引数はディレクトリ形式で入力してください")
 
-        main_files = glob(str(main_dir_path.relative_to(_BASE_DIR)) + "/*.txt")
+        main_files = sorted(glob(str(main_dir_path.relative_to(_BASE_DIR)) + "/*.txt"))
+        print(main_files)
         main_data_list: list[MainData] = []
         for file_name in main_files:
             main_data = MainData.load_main_data(Path(file_name))

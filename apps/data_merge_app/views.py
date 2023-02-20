@@ -98,16 +98,18 @@ def index():
 
             # 本調査の読み込み
             i = 0
+            file_name_list: list[str] = []
             while True:
                 try:
                     file_id = "main-" + str(i)
 
                     main_file = request.files[file_id]
-                    main_filename = main_file.filename
+                    main_filename = f"{str(i).zfill(2)}-" + main_file.filename
 
                     # check file name is secure
                     if main_file and _allowed_file(main_filename):
                         main_filename = secure_filename(main_filename)
+                        file_name_list.append(main_filename[3:])
                         if main_filename != "":
                             main_file_path = Path(upload_main_path, main_filename)
                             main_file.save(main_file_path)
@@ -124,7 +126,9 @@ def index():
                     layout_file_id = "main-layout-" + str(i)
 
                     main_layout_file = request.files[layout_file_id]
-                    main_layout_filename = main_layout_file.filename
+                    main_layout_filename = (
+                        f"{str(i).zfill(2)}-" + main_layout_file.filename
+                    )
 
                     # check file name is secure
                     if main_layout_file and _allowed_file(main_layout_filename):
@@ -167,6 +171,10 @@ def index():
         # マージしたデータを出力
         survey_data.output(output_file_path, flag_names)
         survey_data.output_layout(output_layout_file_path, flag_names)
+
+        # TODO 画面表示のロジック修正する（一時的）
+        for file_name, flag_name in zip(file_name_list, flag_names):
+            flash(f"{file_name}→ラベル:{flag_name}")
 
         # 中にあるファイルを全て削除しておく
         recreate_dir(upload_sc_path)
@@ -212,12 +220,7 @@ def download_file():
     return response
 
 
-@data_merge_app.route(
-    "/complete",
-    methods=[
-        "GET",
-    ],
-)
+@data_merge_app.route("/complete", methods=["GET"])
 def complete_merge():
     return render_template("data_merge_app/download.html")
 

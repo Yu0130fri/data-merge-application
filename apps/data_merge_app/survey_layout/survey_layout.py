@@ -34,7 +34,7 @@ class SurveyLayout(BaseModel):
         if not os.path.isdir(main_dir_path):
             raise ValueError("引数はディレクトリ形式で入力してください")
 
-        main_files = glob(str(main_dir_path.relative_to(_BASE_DIR)) + "/*.txt")
+        main_files = sorted(glob(str(main_dir_path.relative_to(_BASE_DIR)) + "/*.txt"))
 
         main_layout_list: list[MainLayout] = []
         for file in main_files:
@@ -79,10 +79,6 @@ class SurveyLayout(BaseModel):
         return header_list + sc_list + main_list
 
     def merge_layout_with_flag(self, flag_names: list[str]) -> list[list[str]]:
-        # TODO フロント側で制御予定
-        # if len(self.main_layout_list) != len(flag_names):
-        #     raise ValueError("選択したレイアウトの数とラベル数が一致しません")
-
         valid_sample_num: int = 0
         for idx, main_layout in enumerate(self.main_layout_list):
             layout_data = main_layout.main_layout
