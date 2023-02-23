@@ -173,8 +173,9 @@ def index():
         survey_data.output_layout(output_layout_file_path, flag_names)
 
         # TODO 画面表示のロジック修正する（一時的）
-        for file_name, flag_name in zip(file_name_list, flag_names):
-            flash(f"{file_name}→ラベル:{flag_name}")
+        if flag_names is not None:
+            for file_name, flag_name in zip(file_name_list, flag_names):
+                flash(f"{file_name}→ラベル:{flag_name}")
 
         # 中にあるファイルを全て削除しておく
         recreate_dir(upload_sc_path)

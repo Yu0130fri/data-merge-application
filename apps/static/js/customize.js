@@ -143,3 +143,9 @@ function deleteLayoutBtn() {
         divInputDataBtn[divInputDataBtnLength - 1].remove();
     }
 }
+
+
+function btnDisabled(){
+    downloadBtn = document.getElementById('download-merged-files-btn');
+    downloadBtn.className = "btn btn-primary btn-lg col-md-6 p-3 disabled";
+}
