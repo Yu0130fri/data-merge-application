@@ -6,6 +6,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from .attribute_const import attribute_dict
 from .main_data import MainData
 from .sc_data import ScreeningData
 
@@ -55,7 +56,11 @@ class SurveyData(BaseModel):
 
         return unique_keys_list, merged_main_data
 
-    def merge_data(self) -> tuple[list[str], list[dict[str, str]]]:
+    def merge_data(
+        self,
+        attribute_conditions: Optional[list[dict[str, list[int]]]] = None,
+        flags: Optional[list[int]] = None,
+    ) -> tuple[list[str], list[dict[str, str]]]:
         """SCデータと本調査のデータを結合する(本調査のデータにないMIDは削除)
 
         Raises:
@@ -70,7 +75,16 @@ class SurveyData(BaseModel):
         if self.sc_data is None:
             raise ValueError("マージするSCデータが存在しません")
 
-        all_sc_and_main_data_iter = itertools.product(self.sc_data.sc_data, main_data)
+        if attribute_conditions is None and flags is None:
+            screening_data = self.sc_data.sc_data
+        elif attribute_conditions is not None and flags is not None:
+            screening_data = self._extract_sc_data_with_flag(
+                attribute_conditions, flags
+            )
+        else:
+            raise ValueError("条件とラベル名は両方入力してください")
+
+        all_sc_and_main_data_iter = itertools.product(screening_data, main_data)
 
         merged_dict_list: list[dict[str, str]] = []
         unique_merged_keys_list: list[str] = []
@@ -120,3 +134,29 @@ class SurveyData(BaseModel):
         unique_keys_list = list(dict.fromkeys(keys_list))
 
         return unique_keys_list, merged_main_data_with_flag
+
+    def _extract_sc_data_with_flag(
+        self, attribute_conditions: list[dict[str, list[int]]], flags: list[int]
+    ) -> list[dict[str, str]]:
+        if self.sc_data is None:
+            raise ValueError("Screeningデータを選択してください")
+
+        screening_data = self.sc_data.sc_data
+
+        if len(attribute_conditions) != len(flags):
+            raise ValueError("指定した条件とフラグが一致しません")
+
+        for condition in attribute_conditions:
+            for key, value in condition.items():
+                if list(value) > attribute_dict[key]:
+                    raise ValueError("不正な条件が検知されました")
+
+        extracted_sc_data: list[dict[str, str]] = []
+        for row in screening_data:
+            for idx, condition_dict in enumerate(attribute_conditions):
+                for key, value in condition_dict.items():
+                    if row[key] in value:
+                        row["HQ1"] = str(idx + 1)
+                        extracted_sc_data.append(row)
+
+        return extracted_sc_data
