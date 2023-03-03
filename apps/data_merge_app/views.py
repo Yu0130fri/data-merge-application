@@ -226,7 +226,9 @@ def complete_merge():
     return render_template("data_merge_app/download.html")
 
 
-def _make_zip(data_path: Path, layout_path: Path, zip_file_path: Path) -> ZipFile:
+def _make_zip(  # type: ignore
+    data_path: Path, layout_path: Path, zip_file_path: Path
+) -> ZipFile:
     with ZipFile(zip_file_path, "w") as zip:
         zip.write(data_path)
         zip.write(layout_path)
@@ -234,3 +236,8 @@ def _make_zip(data_path: Path, layout_path: Path, zip_file_path: Path) -> ZipFil
 
 def _allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@data_merge_app.route("/modal_sample", methods=["GET"])
+def modal_sample():
+    return render_template("data_merge_app/modal_sample.html")
