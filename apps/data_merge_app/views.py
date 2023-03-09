@@ -165,14 +165,74 @@ def index():
                     i += 1
                 except Exception:
                     break
+        elif request.form["toggleRadio"] == "attributeChecked":
+            attribute_conditions: list[dict[str, list[int]]] = []
+            while True:
+                flag_name = "flag-name-" + str(i)
+                sex_flag = "sexAttribute-" + str(i)
+                min_age_flag = "minAgeAttribute-" + str(i)
+                max_age_flag = "maxAgeAttribute-" + str(i)
+                pre_flag = "preAttribute-" + str(i)
+                job_flag = "jobAttribute-" + str(i)
+                mar_flag = "marriedAttribute-" + str(i)
+                chi_flag = "childAttribute-" + str(i)
+
+                condition_dict: dict[str, list[int]] = {}
+                try:
+                    flag_names.append(str(request.form[flag_name]))
+                    if request.form[sex_flag] is not None:
+                        condition_dict["SEX"] = [int(request.form[sex_flag])]
+
+                    if (
+                        request.form[min_age_flag] is not None
+                        and request.form[max_age_flag] is not None
+                    ):
+                        condition_dict["AGE"] = list(
+                            range(
+                                int(request.form[min_age_flag]),
+                                int(request.form[max_age_flag]),
+                            )
+                        )
+                    elif (
+                        request.form[sex_flag] is not None
+                        and request.form[max_age_flag] is None
+                    ):
+                        condition_dict["AGE"] = list(
+                            range(int(request.form[max_age_flag]), 100)
+                        )
+                    elif (
+                        request.form[sex_flag] is None
+                        and request.form[max_age_flag] is not None
+                    ):
+                        condition_dict["AGE"] = list(
+                            range(0, int(request.form[max_age_flag]))
+                        )
+
+                    if request.form[pre_flag] is not None:
+                        condition_dict["PRE"] = request.form[pre_flag]
+                    if request.form[job_flag] is not None:
+                        condition_dict["JOB"] = request.form[job_flag]
+                    if request.form[mar_flag] is not None:
+                        condition_dict["MAR"] = [int(request.form[mar_flag])]
+                    if request.form[chi_flag] is not None:
+                        condition_dict["CHI"] = [int(request.form[chi_flag])]
+
+                    attribute_conditions.append(condition_dict)
+
+                    i += 1
+                except Exception:
+                    break
+
         else:
             flag_names = None
 
         # マージしたデータを出力
-        survey_data.output(output_file_path, flag_names)
+        survey_data.output(output_file_path, flag_names, attribute_conditions)
         survey_data.output_layout(output_layout_file_path, flag_names)
 
         # TODO 画面表示のロジック修正する（一時的）
+        if len(attribute_conditions) > 0:
+            flash(attribute_conditions)
         if flag_names is not None:
             for file_name, flag_name in zip(file_name_list, flag_names):
                 flash(f"{file_name}→ラベル:{flag_name}")
@@ -236,8 +296,3 @@ def _make_zip(  # type: ignore
 
 def _allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@data_merge_app.route("/modal_sample", methods=["GET"])
-def modal_sample():
-    return render_template("data_merge_app/modal_sample.html")

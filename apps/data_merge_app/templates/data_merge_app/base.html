@@ -21,6 +21,7 @@
     />
     <script src="{{ url_for('data_merge_app.static', filename='js/customize.js')}}"></script>
     <script src="{{ url_for('data_merge_app.static', filename='js/toggle.js')}}"></script>
+    <script src="{{ url_for('data_merge_app.static', filename='js/modal.js')}}"></script>
     <title>{% block title %} {% endblock %}</title>
   </head>
   <body>
@@ -32,4 +33,25 @@
     </ul>
     {% endif %} {% endwith %} {% block content %}{% endblock %}
   </body>
+
+  <footer class="mt-5" style="background-color: hsl(216, 25%, 95.1%)">
+    <div class="container py-4">
+      <div class="text-center">
+        <p class="">
+          このアプリケーションはさーべロイドの非公式ツールです。<br />
+          また、このアプリケーションのソースコードはオープンにしています。<br />
+          ご興味がある方やご自身で改良したい方は以下からどうぞ
+        </p>
+        <a
+          href="https://github.com/Yu0130fri/data-merge-application"
+          class="btn btn-primary"
+          >Go To My GitHub Page</a
+        >
+      </div>
+    </div>
+
+    <div class="text-center p-3" style="background-color: hsl(216, 25%, 90%)">
+      <small>&copy; 2023 yuto camellia</small>
+    </div>
+  </footer>
 </html>

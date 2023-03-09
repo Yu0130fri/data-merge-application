@@ -126,7 +126,7 @@ class SurveyData(BaseModel):
     def _generate_main_data_with_attribute_flag(
         self,
         main_data: list[dict[str, str]],
-        attribute_conditions: list[tuple[str, dict[str, list[int]]]],
+        attribute_conditions: list[tuple[int, dict[str, list[int]]]],
     ) -> list[dict[str, str]]:
         """mainデータに属性の隠し設問を追加する
 
@@ -149,7 +149,7 @@ class SurveyData(BaseModel):
                         count_condition += 1
 
                 if count_condition == all_condition:
-                    row["HQ"] = hq_num
+                    row["HQ"] = str(hq_num)
                 else:
                     row["HQ"] = ""
 

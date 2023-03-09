@@ -1,7 +1,5 @@
-
-
 function addInputFiles(){
-    let toggle_btn = document.getElementById('generate-flag').checked;
+    let toggle_btn = document.getElementById('labelOff').checked;
     if (toggle_btn){
         addInputFileBtn();
     } else {
@@ -12,7 +10,7 @@ function addInputFiles(){
 }
 
 function deleteInputFileBtn(){
-    let toggle_btn = document.getElementById('generate-flag').checked;
+    let toggle_btn = document.getElementById('labelOff').checked;
     if (toggle_btn){
         deleteBtn();
     }else {
@@ -125,7 +123,7 @@ function addLayoutFileBtn() {
     let inputDataBtnName = 'main-layout-'+countElemNum.toString();
     
     divElem.innerHTML = `
-        <label for="${divId}" class="form-label fs-5 card-text" id="${inputDataLabelName}">本調査レイアウト-${countElemNum + 1}</label>
+        <label for="${divId}" class="form-label fs-5 card-text" id="${inputDataLabelName}">レイアウト-${countElemNum + 1}</label>
         <input type="file" class="form-control form-control-lg" name="${inputDataBtnName}" id="${divId}">
     `
 
