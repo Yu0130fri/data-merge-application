@@ -50,7 +50,7 @@ class SurveyModel(BaseModel):
             else:
                 if self.data.sc_data is None:
                     field_names, output_data = self.data.merge_main_data_with_flag(
-                        attribute_conditions, flag_names
+                        attribute_conditions
                     )
                 else:
                     raise ValueError("質問内容が同じかつSCデータがない時のみフラグをチェックしてください")

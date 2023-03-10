@@ -25,6 +25,17 @@
     <title>{% block title %} {% endblock %}</title>
   </head>
   <body>
+    <header
+      class="bd-header bg-dark py-3 d-flex align-items-stretch border-bottom border-dark"
+    >
+      <a
+        href="/"
+        class="d-flex align-items-center text-dark text-decoration-none"
+      >
+        <span class="fs-4 text-white ms-4">データをマージするページ</span>
+      </a>
+    </header>
+
     {% with messages = get_flashed_messages() %} {% if messages %}
     <ul>
       {% for message in messages %}
@@ -32,26 +43,17 @@
       {% endfor %}
     </ul>
     {% endif %} {% endwith %} {% block content %}{% endblock %}
-  </body>
 
-  <footer class="mt-5" style="background-color: hsl(216, 25%, 95.1%)">
-    <div class="container py-4">
-      <div class="text-center">
-        <p class="">
-          このアプリケーションはさーべロイドの非公式ツールです。<br />
-          また、このアプリケーションのソースコードはオープンにしています。<br />
-          ご興味がある方やご自身で改良したい方は以下からどうぞ
-        </p>
-        <a
-          href="https://github.com/Yu0130fri/data-merge-application"
-          class="btn btn-primary"
-          >Go To My GitHub Page</a
-        >
+    <footer class="footer mt-auto bg-dark">
+      <div class="container py-2">
+        <div class="text-center text-white">
+          <p class="">
+            このアプリケーションはサーべロイドの非公式ツールです。<br />
+            バグなどのサポートなどはしておりません
+          </p>
+          <small>&copy; 2023 yuto camellia</small>
+        </div>
       </div>
-    </div>
-
-    <div class="text-center p-3" style="background-color: hsl(216, 25%, 90%)">
-      <small>&copy; 2023 yuto camellia</small>
-    </div>
-  </footer>
+    </footer>
+  </body>
 </html>

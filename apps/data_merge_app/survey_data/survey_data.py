@@ -139,8 +139,8 @@ class SurveyData(BaseModel):
         """
         main_data_with_flag: list[dict[str, str]] = []
 
-        for row in main_data:
-            for hq_num, condition in attribute_conditions:
+        for hq_num, condition in attribute_conditions:
+            for row in main_data:
                 all_condition: int = len(condition)
 
                 count_condition: int = 0  # 条件の数をカウントし、全て条件に合致しているか判定する
@@ -151,7 +151,13 @@ class SurveyData(BaseModel):
                 if count_condition == all_condition:
                     row["HQ"] = str(hq_num)
                 else:
-                    row["HQ"] = ""
+                    try:
+                        if row["HQ"] != "":
+                            continue
+                        else:
+                            row["HQ"] = ""
+                    except Exception:
+                        row["HQ"] = ""
 
                 main_data_with_flag.append(row)
 
@@ -170,7 +176,10 @@ class SurveyData(BaseModel):
             ValueError: list内の要素の数とflag名の数が一致しない時
 
         Examples:
-            attribute_conditions: [{"AGE", [20, 21, 22, ..., 29], "PRE": [1, 2]}]
+            attribute_conditions: [
+                (1, {"AGE", [20, 21, 22, ..., 29], "PRE": [1, 2]}),
+                (2, {~})...
+            ]
 
         Returns:
             list[dict[str, str]]: マージされた本調査のデータ
@@ -186,7 +195,6 @@ class SurveyData(BaseModel):
             main_data_with_flag = self._generate_main_data_with_attribute_flag(
                 main_data, attribute_conditions=attribute_conditions
             )
-
             keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
 
             merged_main_data_with_flag += main_data_with_flag

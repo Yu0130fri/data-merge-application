@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from pathlib import Path
 from zipfile import ZipFile
 
+import werkzeug
 from flask import (
     Blueprint,
     current_app,
@@ -156,70 +159,68 @@ def index():
 
         # データをマージする
         flag_names: list[str] | None = []  # type:ignore
+        flg_num: int = 0
         if _GENERATE_FLAG in request.form:
-            i = 0
             while True:
-                flag_name = "flag-name-" + str(i)
+                flag_name = "flag-name-" + str(flg_num)
                 try:
                     flag_names.append(str(request.form[flag_name]))
-                    i += 1
+                    flg_num += 1
                 except Exception:
                     break
         elif request.form["toggleRadio"] == "attributeChecked":
-            attribute_conditions: list[dict[str, list[int]]] = []
+            attribute_conditions: list[tuple[int, dict[str, list[int]]]] = []  # type: ignore
+            flg_num += 1
             while True:
-                flag_name = "flag-name-" + str(i)
-                sex_flag = "sexAttribute-" + str(i)
-                min_age_flag = "minAgeAttribute-" + str(i)
-                max_age_flag = "maxAgeAttribute-" + str(i)
-                pre_flag = "preAttribute-" + str(i)
-                job_flag = "jobAttribute-" + str(i)
-                mar_flag = "marriedAttribute-" + str(i)
-                chi_flag = "childAttribute-" + str(i)
+                flag_name = "flag-name-" + str(flg_num)
+                sex_flag = "sexAttribute-" + str(flg_num)
+                min_age_flag = "minAgeAttribute-" + str(flg_num)
+                max_age_flag = "maxAgeAttribute-" + str(flg_num)
+                pre_flag = "preAttribute-" + str(flg_num)
+                job_flag = "jobAttribute-" + str(flg_num)
+                mar_flag = "marriedAttribute-" + str(flg_num)
+                chi_flag = "childAttribute-" + str(flg_num)
 
-                condition_dict: dict[str, list[int]] = {}
+                condition_dict: dict[str, list[int | str]] = {}
                 try:
                     flag_names.append(str(request.form[flag_name]))
-                    if request.form[sex_flag] is not None:
+
+                    if sex_flag in request.form:
                         condition_dict["SEX"] = [int(request.form[sex_flag])]
 
-                    if (
-                        request.form[min_age_flag] is not None
-                        and request.form[max_age_flag] is not None
-                    ):
-                        condition_dict["AGE"] = list(
-                            range(
-                                int(request.form[min_age_flag]),
-                                int(request.form[max_age_flag]),
-                            )
-                        )
-                    elif (
-                        request.form[sex_flag] is not None
-                        and request.form[max_age_flag] is None
-                    ):
-                        condition_dict["AGE"] = list(
-                            range(int(request.form[max_age_flag]), 100)
-                        )
-                    elif (
-                        request.form[sex_flag] is None
-                        and request.form[max_age_flag] is not None
-                    ):
-                        condition_dict["AGE"] = list(
-                            range(0, int(request.form[max_age_flag]))
-                        )
+                    if min_age_flag in request.form:
+                        min_age = int(request.form[min_age_flag])
+                    else:
+                        min_age = 0
 
-                    if request.form[pre_flag] is not None:
-                        condition_dict["PRE"] = request.form[pre_flag]
-                    if request.form[job_flag] is not None:
-                        condition_dict["JOB"] = request.form[job_flag]
-                    if request.form[mar_flag] is not None:
+                    if max_age_flag in request.form:
+                        max_age = request.form[max_age_flag] + 1
+                    else:
+                        max_age = 101
+
+                    condition_dict["AGE"] = list(range(min_age, max_age))
+
+                    if pre_flag in request.form:
+                        condition_dict["PRE"] = [
+                            int(str_value)
+                            for str_value in request.form[pre_flag].split(",")
+                        ]
+
+                    if job_flag in request.form:
+                        condition_dict["JOB"] = [
+                            int(str_value)
+                            for str_value in request.form[job_flag].split(",")
+                        ]
+                        print(condition_dict["JOB"], type(condition_dict["JOB"]))
+
+                    if mar_flag in request.form:
                         condition_dict["MAR"] = [int(request.form[mar_flag])]
-                    if request.form[chi_flag] is not None:
+
+                    if chi_flag in request.form:
                         condition_dict["CHI"] = [int(request.form[chi_flag])]
 
-                    attribute_conditions.append(condition_dict)
-
-                    i += 1
+                    attribute_conditions.append((flg_num, condition_dict))
+                    flg_num += 1
                 except Exception:
                     break
 
@@ -227,12 +228,11 @@ def index():
             flag_names = None
 
         # マージしたデータを出力
+
         survey_data.output(output_file_path, flag_names, attribute_conditions)
         survey_data.output_layout(output_layout_file_path, flag_names)
 
         # TODO 画面表示のロジック修正する（一時的）
-        if len(attribute_conditions) > 0:
-            flash(attribute_conditions)
         if flag_names is not None:
             for file_name, flag_name in zip(file_name_list, flag_names):
                 flash(f"{file_name}→ラベル:{flag_name}")
@@ -267,16 +267,11 @@ def download_file():
     response = make_response()
     response.data = open(output_zip_path, "rb").read()
 
-    # with open(output_file_path, "rb") as f:
-    #     response.data = f.read()
-
     # 読み取り後にファイル削除
     recreate_dir(output_path)
 
     response.headers["Content-Disposition"] = "attachment; filename=" + _OUTPUT_ZIP_NAME
     response.mimetype = _ZIP_APPLICATION
-    # response.mimetype = _TEXT_PLAIN
-    # response.headers["Content-Disposition"] = "attachment; filename=" + _FILE_NAME
 
     return response
 
@@ -296,3 +291,27 @@ def _make_zip(  # type: ignore
 
 def _allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@data_merge_app.errorhandler(Exception)  # エラーが発生した場合の処理
+def error_400(_):
+    upload_sc_path = current_app.config["UPLOAD_SC_FOLDER"]
+    upload_main_path = current_app.config["UPLOAD_MAIN_FOLDER"]
+    upload_sc_layout_path = current_app.config["UPLOAD_SC_LAYOUT_FOLDER"]
+    upload_main_layout_path = current_app.config["UPLOAD_MAIN_LAYOUT_FOLDER"]
+    output_path = current_app.config["OUTPUT_FOLDER"]
+
+    # ファイルを保存しないため、各pathにファイルがある場合は削除
+    # その後、空のディレクトリを作成しておく
+    recreate_dir(upload_sc_path)
+    recreate_dir(upload_main_path)
+    recreate_dir(upload_sc_layout_path)
+    recreate_dir(upload_main_layout_path)
+    recreate_dir(output_path)
+
+    return render_template("data_merge_app/400.html"), 404
+
+
+@data_merge_app.errorhandler(500)  # 500エラーが発生した場合の処理
+def error_500(error):
+    return render_template("data_merge_app/400.html")
