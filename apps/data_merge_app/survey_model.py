@@ -27,20 +27,33 @@ class SurveyModel(BaseModel):
 
         return cls(data=data, layout=layout)
 
-    def output(self, output_path: Path, flag_names: Optional[list[str]] = None) -> None:
-        if flag_names is None:
+    def output(
+        self,
+        output_path: Path,
+        flag_names: Optional[list[str]] = None,
+        attribute_conditions: Optional[list[tuple[int, dict[str, list[int]]]]] = None,
+    ) -> None:
+        if flag_names is None and attribute_conditions is None:
             if self.data.sc_data is None:
                 field_names, output_data = self.data.merge_main_data()
             else:
                 field_names, output_data = self.data.merge_data()
 
         else:
-            if self.data.sc_data is None:
-                field_names, output_data = self.data.merge_same_main_data_with_flag(
-                    flag_names
-                )
+            if attribute_conditions is None:
+                if self.data.sc_data is None:
+                    field_names, output_data = self.data.merge_same_main_data_with_flag(
+                        flag_names
+                    )
+                else:
+                    raise ValueError("質問内容が同じかつSCデータがない時のみフラグをチェックしてください")
             else:
-                raise ValueError("質問内容が同じかつSCデータがない時のみフラグをチェックしてください")
+                if self.data.sc_data is None:
+                    field_names, output_data = self.data.merge_main_data_with_flag(
+                        attribute_conditions
+                    )
+                else:
+                    raise ValueError("質問内容が同じかつSCデータがない時のみフラグをチェックしてください")
 
         with open(output_path, "w", encoding=SHIFT_JIS) as f:
             writer = DictWriter(f, fieldnames=field_names, delimiter="\t")

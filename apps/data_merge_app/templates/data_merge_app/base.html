@@ -21,9 +21,21 @@
     />
     <script src="{{ url_for('data_merge_app.static', filename='js/customize.js')}}"></script>
     <script src="{{ url_for('data_merge_app.static', filename='js/toggle.js')}}"></script>
+    <script src="{{ url_for('data_merge_app.static', filename='js/modal.js')}}"></script>
     <title>{% block title %} {% endblock %}</title>
   </head>
   <body>
+    <header
+      class="bd-header bg-dark py-3 d-flex align-items-stretch border-bottom border-dark"
+    >
+      <a
+        href="/"
+        class="d-flex align-items-center text-dark text-decoration-none"
+      >
+        <span class="fs-4 text-white ms-4">データをマージするページ</span>
+      </a>
+    </header>
+
     {% with messages = get_flashed_messages() %} {% if messages %}
     <ul>
       {% for message in messages %}
@@ -31,5 +43,17 @@
       {% endfor %}
     </ul>
     {% endif %} {% endwith %} {% block content %}{% endblock %}
+
+    <footer class="footer mt-auto bg-dark">
+      <div class="container py-2">
+        <div class="text-center text-white">
+          <p class="">
+            このアプリケーションはサーべロイドの非公式ツールです。<br />
+            バグなどのサポートなどはしておりません
+          </p>
+          <small>&copy; 2023 yuto camellia</small>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

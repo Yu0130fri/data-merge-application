@@ -1,0 +1,19 @@
+{% extends 'data_merge_app/base.html' %} {% block title %}Ops! Error Happens!{%
+endblock %} {% block content %}
+<div class="error-container">
+  <h1 class="my-2 text-danger d-flex justify-content-center">
+    Errorが発生しました。
+  </h1>
+  <h4 class="d-flex justify-content-center mt-2">
+    入力したデータ形式が正しいかご確認ください
+  </h4>
+  <div class="row d-flex justify-content-center">
+    <a
+      href="{{url_for('data_merge_app.index')}}"
+      class="btn btn-primary btn-lg col-sm-3 p-3 mt-4"
+    >
+      ページTOPに戻る
+    </a>
+  </div>
+</div>
+{% endblock %}

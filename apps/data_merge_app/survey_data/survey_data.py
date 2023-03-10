@@ -70,7 +70,9 @@ class SurveyData(BaseModel):
         if self.sc_data is None:
             raise ValueError("マージするSCデータが存在しません")
 
-        all_sc_and_main_data_iter = itertools.product(self.sc_data.sc_data, main_data)
+        screening_data = self.sc_data.sc_data
+
+        all_sc_and_main_data_iter = itertools.product(screening_data, main_data)
 
         merged_dict_list: list[dict[str, str]] = []
         unique_merged_keys_list: list[str] = []
@@ -113,6 +115,86 @@ class SurveyData(BaseModel):
                 row["HQ1"] = str(idx + 1)
                 main_data_with_flag.append(row)
 
+            keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
+
+            merged_main_data_with_flag += main_data_with_flag
+
+        unique_keys_list = list(dict.fromkeys(keys_list))
+
+        return unique_keys_list, merged_main_data_with_flag
+
+    def _generate_main_data_with_attribute_flag(
+        self,
+        main_data: list[dict[str, str]],
+        attribute_conditions: list[tuple[int, dict[str, list[int]]]],
+    ) -> list[dict[str, str]]:
+        """mainデータに属性の隠し設問を追加する
+
+        Args:
+            main_data (list[dict[str, str]]): 本調査データ
+            attribute_conditions (list[tuple[str, dict[str, list[int]]]]):
+                各flagの番号に対応した属性情報が格納されたリスト
+        Returns:
+            list[dict[str, str]]: フラグ設問が追加された本調査データ
+        """
+        main_data_with_flag: list[dict[str, str]] = []
+
+        for hq_num, condition in attribute_conditions:
+            for row in main_data:
+                all_condition: int = len(condition)
+
+                count_condition: int = 0  # 条件の数をカウントし、全て条件に合致しているか判定する
+                for key, value in condition.items():
+                    if int(row[key]) in value:
+                        count_condition += 1
+
+                if count_condition == all_condition:
+                    row["HQ"] = str(hq_num)
+                else:
+                    try:
+                        if row["HQ"] != "":
+                            continue
+                        else:
+                            row["HQ"] = ""
+                    except Exception:
+                        row["HQ"] = ""
+
+                main_data_with_flag.append(row)
+
+        return main_data_with_flag
+
+    def merge_main_data_with_flag(
+        self, attribute_conditions: list[tuple[int, dict[str, list[int]]]]
+    ) -> tuple[list[str], list[dict[str, str]]]:
+        """それぞれの本調査にフラグ付してマージする
+
+        Args:
+            attribute_conditions (list[dict[str, list[int]]]): 条件が格納されたdictのリスト
+            flags (list[int]): flag名
+
+        Raises:
+            ValueError: list内の要素の数とflag名の数が一致しない時
+
+        Examples:
+            attribute_conditions: [
+                (1, {"AGE", [20, 21, 22, ..., 29], "PRE": [1, 2]}),
+                (2, {~})...
+            ]
+
+        Returns:
+            list[dict[str, str]]: マージされた本調査のデータ
+        """
+        main_data_lists = self.main_data_list
+
+        merged_main_data_with_flag: list[dict[str, str]] = []
+        keys_list: list[str] = []
+
+        for main_data_list in main_data_lists:
+            main_data = main_data_list.main_data
+
+            main_data_with_flag = self._generate_main_data_with_attribute_flag(
+                main_data, attribute_conditions=attribute_conditions
+            )
             keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
 
             merged_main_data_with_flag += main_data_with_flag

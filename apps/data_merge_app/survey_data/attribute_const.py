@@ -1,4 +1,4 @@
-ATTRIBUTE_DICT = {
+attribute_dict = {
     "SEX": [1, 2],
     "AGE": list(range(0, 120)),
     "GEN": list(range(1, 8)),
@@ -8,8 +8,3 @@ ATTRIBUTE_DICT = {
     "MAR": [1, 2],
     "CHI": [1, 2],
 }
-
-
-ATTRIBUTE_NAME_LIST = ["SEX", "AGE", "GEN", "PRE", "ARE", "JOB", "MAR", "CHI"]
-
-SHIFT_JIS = "shift_jis"
