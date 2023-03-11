@@ -4,6 +4,7 @@ from glob import glob
 from pathlib import Path
 from typing import Optional
 
+from flask import flash
 from pydantic import BaseModel
 
 from .main_data import MainData
@@ -36,24 +37,6 @@ class SurveyData(BaseModel):
             main_data_list.append(main_data)
 
         return cls(sc_data=sc_data, main_data_list=main_data_list)
-
-    def merge_main_data(self) -> tuple[list[str], list[dict[str, str]]]:
-        """本調査同士をマージする
-
-        Returns:
-            tuple[list[str], list[dict[str, str]]]: 出力する時のヘッダーとマージしたデータ
-        """
-        merged_main_data: list[dict[str, str]] = []
-        keys_list: list[str] = []
-
-        for main_data in self.main_data_list:
-            main = main_data.main_data
-            keys_list += list(main[_GET_DICT_KEYS].keys())
-            merged_main_data += main
-
-        unique_keys_list = list(dict.fromkeys(keys_list))
-
-        return unique_keys_list, merged_main_data
 
     def merge_data(self) -> tuple[list[str], list[dict[str, str]]]:
         """SCデータと本調査のデータを結合する(本調査のデータにないMIDは削除)
@@ -98,30 +81,23 @@ class SurveyData(BaseModel):
 
         return unique_merged_keys_list, merged_dict_list
 
-    def merge_same_main_data_with_flag(
-        self, flag_names: list[str]
-    ) -> tuple[list[str], list[dict[str, str]]]:
-        merged_main_data_with_flag: list[dict[str, str]] = []
+    def merge_main_data(self) -> tuple[list[str], list[dict[str, str]]]:
+        """本調査同士をマージする
+
+        Returns:
+            tuple[list[str], list[dict[str, str]]]: 出力する時のヘッダーとマージしたデータ
+        """
+        merged_main_data: list[dict[str, str]] = []
         keys_list: list[str] = []
 
-        main_data_list = self.main_data_list
-
-        if len(main_data_list) != len(flag_names):
-            raise ValueError("アップロードした本調査とフラグ付けの名前の数が一致していません！")
-
-        for idx, (main_data, _) in enumerate(zip(main_data_list, flag_names)):
-            main_data_with_flag: list[dict[str, str]] = []
-            for row in main_data.main_data:
-                row["HQ1"] = str(idx + 1)
-                main_data_with_flag.append(row)
-
-            keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
-
-            merged_main_data_with_flag += main_data_with_flag
+        for main_data in self.main_data_list:
+            main = main_data.main_data
+            keys_list += list(main[_GET_DICT_KEYS].keys())
+            merged_main_data += main
 
         unique_keys_list = list(dict.fromkeys(keys_list))
 
-        return unique_keys_list, merged_main_data_with_flag
+        return unique_keys_list, merged_main_data
 
     def _generate_main_data_with_attribute_flag(
         self,
@@ -140,6 +116,9 @@ class SurveyData(BaseModel):
         main_data_with_flag: list[dict[str, str]] = []
 
         for hq_num, condition in attribute_conditions:
+            if condition is None:
+                flash("条件が取得できませんでした")
+                raise ValueError()
             for row in main_data:
                 all_condition: int = len(condition)
 
@@ -164,40 +143,59 @@ class SurveyData(BaseModel):
         return main_data_with_flag
 
     def merge_main_data_with_flag(
-        self, attribute_conditions: list[tuple[int, dict[str, list[int]]]]
+        self,
+        attribute_conditions: list[tuple[int, Optional[dict[str, list[int]]]]],
+        attribute_flg: bool = True,
     ) -> tuple[list[str], list[dict[str, str]]]:
-        """それぞれの本調査にフラグ付してマージする
+        """同じ内容の本調査を属性（もしくは連番）でフラグを作成し、データのカラムに追加する
 
         Args:
-            attribute_conditions (list[dict[str, list[int]]]): 条件が格納されたdictのリスト
-            flags (list[int]): flag名
-
-        Raises:
-            ValueError: list内の要素の数とflag名の数が一致しない時
+            attribute_conditions (list[tuple[int, Optional[dict[str, list[int]]]]]):
+                本調査のフラグ番号に対応した条件のtupleを格納したリスト
+            attribute_flg(bool): 本調査属性を利用するかのフラグ（デフォルトは有）
 
         Examples:
             attribute_conditions: [
                 (1, {"AGE", [20, 21, 22, ..., 29], "PRE": [1, 2]}),
                 (2, {~})...
             ]
+            ファイルごとに連番を振る場合はdict→Noneが入る
+
+        Raises:
+            ValueError: 条件がNoneのとき（本調査ファイルごとに属性をつけるとき）、
+                ファイル数と連番の番号が一致しない時
 
         Returns:
-            list[dict[str, str]]: マージされた本調査のデータ
+            tuple[list[str], list[dict[str, str]]]: フラグ付した後のheader情報とフラグ付されてマージ済みの本調査データ
         """
-        main_data_lists = self.main_data_list
-
         merged_main_data_with_flag: list[dict[str, str]] = []
         keys_list: list[str] = []
 
-        for main_data_list in main_data_lists:
-            main_data = main_data_list.main_data
+        main_data_lists = self.main_data_list
 
-            main_data_with_flag = self._generate_main_data_with_attribute_flag(
-                main_data, attribute_conditions=attribute_conditions
-            )
-            keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
+        if attribute_flg:
+            for main_data_list in main_data_lists:
+                main_data = main_data_list.main_data
 
-            merged_main_data_with_flag += main_data_with_flag
+                main_data_with_flag = self._generate_main_data_with_attribute_flag(
+                    main_data, attribute_conditions=attribute_conditions  # type: ignore
+                )
+                keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
+                merged_main_data_with_flag += main_data_with_flag
+
+        else:
+            if len(main_data_lists) != len(attribute_conditions):
+                flash("アップロードした本調査とフラグ付けの名前の数が一致していません！")
+                raise ValueError()
+
+            for idx, m_data in enumerate(main_data_lists):
+                main_data_with_flag = []
+                for row in m_data.main_data:
+                    row["HQ"] = str(idx + 1)
+                    main_data_with_flag.append(row)
+                keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
+
+                merged_main_data_with_flag += main_data_with_flag
 
         unique_keys_list = list(dict.fromkeys(keys_list))
 

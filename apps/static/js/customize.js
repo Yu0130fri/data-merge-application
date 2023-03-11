@@ -51,13 +51,15 @@ function addInputFileBtn() {
             diff = countElemNum - achFlagElem.childElementCount + 1;
             for (let i=1; i<=diff; i++){
                 let divElem = document.createElement('div');
-                divElem.className = 'flag-text my-2'
+                divElem.className = 'flag-text my-2 row'
                 let idName= achFlagElem.childElementCount + i;
                 let divId = 'flag-name-' + (idName).toString();
             
                 divElem.innerHTML = `
-                <label for="${divId}" class="form-label fs-10 card-text">本調査-${idName}</label>
-                <input type="text" class="form-control" name="${divId}" id="${divId}" placeholder="本調査-${idName}のラベル">
+                <label for="${divId}" class="col-sm-2 form-label card-text">本調査-${idName}</label>
+                <div class='col-sm-5'>
+                    <input type="text" class="form-control" name="${divId}" id="${divId}" placeholder="本調査-${idName}のラベル">
+                </div>
                 `
                 achFlagElem.append(divElem);
             }
