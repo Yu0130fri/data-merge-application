@@ -29,3 +29,4 @@ class ScreeningData(BaseModel):
             return cls(sc_data=sc_data)
         else:
             flash("データのエンコードが不正です")
+            raise ValueError()

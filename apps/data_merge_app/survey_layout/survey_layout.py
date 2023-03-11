@@ -16,8 +16,8 @@ _VALID_SAMPLE_ELEM = 13
 _DETAIL_COLS = 90
 _COMMON_COL_NUM = 0
 
-_FLAG_NAME = "HQ1"
-_FLAG_NAME_SMALL = "hq1"
+_FLAG_NAME = "HQ"
+_FLAG_NAME_SMALL = "hq"
 
 
 class SurveyLayout(BaseModel):
@@ -103,7 +103,7 @@ class SurveyLayout(BaseModel):
             str(len(flag_names)),
             "99",  # 暫定的
             "",
-            "割り付けフラグ",
+            "割付フラグ",
         ]
         hq_layout_detail_cols: list[list[str]] = []
         for idx, flag_name in enumerate(flag_names):
@@ -128,4 +128,4 @@ class SurveyLayout(BaseModel):
 
 def _get_unique_list(data: list[list[str]]) -> list[list[str]]:
     seen = []
-    return [x for x in data if x not in seen and not seen.append(x)]
+    return [x for x in data if x not in seen and not seen.append(x)]  # type: ignore

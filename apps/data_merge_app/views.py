@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional
 from zipfile import ZipFile
 
-import werkzeug
 from flask import (
     Blueprint,
     current_app,
@@ -33,6 +33,7 @@ _BASE_DIR = Path(__file__).resolve().parent.parent.parent
 _DEFAULT_MAIN_FILE_NAME = "main-0"
 _SC_FILE_ID = "sc-file"
 _SC_LAYOUT_FILE_ID = "sc-layout-file"
+_TOGGLE_RADIO_KEY = "toggleRadio"
 
 _GENERATE_FLAG = "flag-name-0"
 
@@ -95,7 +96,7 @@ def index():
                 _SC_FILE_ID in request.files and _SC_LAYOUT_FILE_ID not in request.files
             ):
                 flash("データとレイアウトは両方入れてください")
-                raise ValueError()  # TODO エラー画面の生成
+                raise ValueError()
             else:
                 sc_file_path = None
 
@@ -159,77 +160,93 @@ def index():
 
         # データをマージする
         flag_names: list[str] | None = []  # type:ignore
-        flg_num: int = 0
+        flg_num: int = 0  # type: ignore
+
+        attribute_conditions: Optional[list[tuple[int, Optional[dict[str, list[int]]]]]] = []  # type: ignore  # noqa: E501
+
         if _GENERATE_FLAG in request.form:
+            attribute_flg = False
             while True:
                 flag_name = "flag-name-" + str(flg_num)
                 try:
                     flag_names.append(str(request.form[flag_name]))
+                    attribute_conditions.append((flg_num + 1, None))
                     flg_num += 1
                 except Exception:
                     break
-        elif request.form["toggleRadio"] == "attributeChecked":
-            attribute_conditions: list[tuple[int, dict[str, list[int]]]] = []  # type: ignore
-            flg_num += 1
-            while True:
-                flag_name = "flag-name-" + str(flg_num)
-                sex_flag = "sexAttribute-" + str(flg_num)
-                min_age_flag = "minAgeAttribute-" + str(flg_num)
-                max_age_flag = "maxAgeAttribute-" + str(flg_num)
-                pre_flag = "preAttribute-" + str(flg_num)
-                job_flag = "jobAttribute-" + str(flg_num)
-                mar_flag = "marriedAttribute-" + str(flg_num)
-                chi_flag = "childAttribute-" + str(flg_num)
+        elif _TOGGLE_RADIO_KEY in request.form:
+            if request.form[_TOGGLE_RADIO_KEY] != "attributeChecked":
+                attribute_flg = False
+                attribute_conditions = None
+                flag_names = None
+            else:
+                flg_num += 1
+                attribute_flg = True
+                while True:
+                    flag_name = "flag-name-" + str(flg_num)
+                    sex_flag = "sexAttribute-" + str(flg_num)
+                    min_age_flag = "minAgeAttribute-" + str(flg_num)
+                    max_age_flag = "maxAgeAttribute-" + str(flg_num)
+                    pre_flag = "preAttribute-" + str(flg_num)
+                    job_flag = "jobAttribute-" + str(flg_num)
+                    mar_flag = "marriedAttribute-" + str(flg_num)
+                    chi_flag = "childAttribute-" + str(flg_num)
 
-                condition_dict: dict[str, list[int | str]] = {}
-                try:
-                    flag_names.append(str(request.form[flag_name]))
+                    condition_dict: dict[str, list[int | str]] = {}
+                    try:
+                        flag_names.append(str(request.form[flag_name]))
 
-                    if sex_flag in request.form:
-                        condition_dict["SEX"] = [int(request.form[sex_flag])]
+                        if sex_flag in request.form:
+                            condition_dict["SEX"] = [int(request.form[sex_flag])]
 
-                    if min_age_flag in request.form:
-                        min_age = int(request.form[min_age_flag])
-                    else:
-                        min_age = 0
+                        if min_age_flag in request.form:
+                            min_age = int(request.form[min_age_flag])
+                        else:
+                            min_age = 0
 
-                    if max_age_flag in request.form:
-                        max_age = request.form[max_age_flag] + 1
-                    else:
-                        max_age = 101
+                        if max_age_flag in request.form:
+                            max_age = request.form[max_age_flag] + 1
+                        else:
+                            max_age = 101
 
-                    condition_dict["AGE"] = list(range(min_age, max_age))
+                        condition_dict["AGE"] = list(range(min_age, max_age))
 
-                    if pre_flag in request.form:
-                        condition_dict["PRE"] = [
-                            int(str_value)
-                            for str_value in request.form[pre_flag].split(",")
-                        ]
+                        if pre_flag in request.form:
+                            condition_dict["PRE"] = [
+                                int(str_value)
+                                for str_value in request.form[pre_flag].split(",")
+                            ]
 
-                    if job_flag in request.form:
-                        condition_dict["JOB"] = [
-                            int(str_value)
-                            for str_value in request.form[job_flag].split(",")
-                        ]
-                        print(condition_dict["JOB"], type(condition_dict["JOB"]))
+                        if job_flag in request.form:
+                            condition_dict["JOB"] = [
+                                int(str_value)
+                                for str_value in request.form[job_flag].split(",")
+                            ]
+                            print(condition_dict["JOB"], type(condition_dict["JOB"]))
 
-                    if mar_flag in request.form:
-                        condition_dict["MAR"] = [int(request.form[mar_flag])]
+                        if mar_flag in request.form:
+                            condition_dict["MAR"] = [int(request.form[mar_flag])]
 
-                    if chi_flag in request.form:
-                        condition_dict["CHI"] = [int(request.form[chi_flag])]
+                        if chi_flag in request.form:
+                            condition_dict["CHI"] = [int(request.form[chi_flag])]
 
-                    attribute_conditions.append((flg_num, condition_dict))
-                    flg_num += 1
-                except Exception:
-                    break
+                        attribute_conditions.append((flg_num, condition_dict))
+                        flg_num += 1
+                    except Exception:
+                        break
 
         else:
+            attribute_flg = False
+            attribute_conditions = None
             flag_names = None
 
         # マージしたデータを出力
+        for key, value in request.form.items():
+            print(key, value)
 
-        survey_data.output(output_file_path, flag_names, attribute_conditions)
+        print("attribute_conditions", attribute_conditions)
+
+        survey_data.output(output_file_path, attribute_conditions, attribute_flg)
         survey_data.output_layout(output_layout_file_path, flag_names)
 
         # TODO 画面表示のロジック修正する（一時的）

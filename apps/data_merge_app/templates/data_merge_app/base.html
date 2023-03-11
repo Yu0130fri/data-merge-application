@@ -36,13 +36,16 @@
       </a>
     </header>
 
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <ul>
-      {% for message in messages %}
-      <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %} {% endwith %} {% block content %}{% endblock %}
+    <div class="d-flex justify-content-center">
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <ul class="mt-5">
+        {% for message in messages %}
+        <li class="fs-5 mt-1">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
+    </div>
+    {% block content %}{% endblock %}
 
     <footer class="footer mt-auto bg-dark">
       <div class="container py-2">
