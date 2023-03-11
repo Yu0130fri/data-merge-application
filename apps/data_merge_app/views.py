@@ -310,25 +310,25 @@ def _allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# @data_merge_app.errorhandler(Exception)  # エラーが発生した場合の処理
-# def error_400(_):
-#     upload_sc_path = current_app.config["UPLOAD_SC_FOLDER"]
-#     upload_main_path = current_app.config["UPLOAD_MAIN_FOLDER"]
-#     upload_sc_layout_path = current_app.config["UPLOAD_SC_LAYOUT_FOLDER"]
-#     upload_main_layout_path = current_app.config["UPLOAD_MAIN_LAYOUT_FOLDER"]
-#     output_path = current_app.config["OUTPUT_FOLDER"]
+@data_merge_app.errorhandler(Exception)  # エラーが発生した場合の処理
+def error_400(_):
+    upload_sc_path = current_app.config["UPLOAD_SC_FOLDER"]
+    upload_main_path = current_app.config["UPLOAD_MAIN_FOLDER"]
+    upload_sc_layout_path = current_app.config["UPLOAD_SC_LAYOUT_FOLDER"]
+    upload_main_layout_path = current_app.config["UPLOAD_MAIN_LAYOUT_FOLDER"]
+    output_path = current_app.config["OUTPUT_FOLDER"]
 
-#     # ファイルを保存しないため、各pathにファイルがある場合は削除
-#     # その後、空のディレクトリを作成しておく
-#     recreate_dir(upload_sc_path)
-#     recreate_dir(upload_main_path)
-#     recreate_dir(upload_sc_layout_path)
-#     recreate_dir(upload_main_layout_path)
-#     recreate_dir(output_path)
+    # ファイルを保存しないため、各pathにファイルがある場合は削除
+    # その後、空のディレクトリを作成しておく
+    recreate_dir(upload_sc_path)
+    recreate_dir(upload_main_path)
+    recreate_dir(upload_sc_layout_path)
+    recreate_dir(upload_main_layout_path)
+    recreate_dir(output_path)
 
-#     return render_template("data_merge_app/400.html"), 404
+    return render_template("data_merge_app/400.html"), 404
 
 
-# @data_merge_app.errorhandler(500)  # 500エラーが発生した場合の処理
-# def error_500(error):
-#     return render_template("data_merge_app/400.html")
+@data_merge_app.errorhandler(500)  # 500エラーが発生した場合の処理
+def error_500(error):
+    return render_template("data_merge_app/400.html")
