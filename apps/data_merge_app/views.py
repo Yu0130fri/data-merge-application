@@ -4,16 +4,8 @@ from pathlib import Path
 from typing import Optional
 from zipfile import ZipFile
 
-from flask import (
-    Blueprint,
-    current_app,
-    flash,
-    make_response,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import (Blueprint, current_app, flash, make_response, redirect,
+                   render_template, request, url_for)
 from werkzeug.utils import secure_filename
 
 from .models.recreate_dir import recreate_dir
