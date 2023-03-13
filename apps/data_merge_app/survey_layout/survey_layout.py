@@ -1,10 +1,8 @@
-import csv
 import os
 from glob import glob
 from pathlib import Path
 from typing import Optional
 
-from flask import flash
 from pydantic import BaseModel
 
 from .main_layout import MainLayout
@@ -18,6 +16,7 @@ _COMMON_COL_NUM = 0
 
 _FLAG_NAME = "HQ"
 _FLAG_NAME_SMALL = "hq"
+_HOKKAIDO_POSITION = 65
 
 
 class SurveyLayout(BaseModel):
@@ -80,8 +79,8 @@ class SurveyLayout(BaseModel):
 
     def merge_layout_with_flag(self, flag_names: list[str]) -> list[list[str]]:
         valid_sample_num: int = 0
-        for idx, main_layout in enumerate(self.main_layout_list):
-            layout_data = main_layout.main_layout
+        for idx, m_layout in enumerate(self.main_layout_list):
+            layout_data = m_layout.main_layout
             common = layout_data[_COMMON_COL_NUM]
             valid_sample_num += int(common[_VALID_SAMPLE_ELEM])
             if idx == 0:
@@ -92,6 +91,12 @@ class SurveyLayout(BaseModel):
         merged_layout[_COMMON_COL_NUM][_VALID_SAMPLE_ELEM] = str(valid_sample_num)
         # レイアウトはマージした2次配列の重複を取り除くだけで良いため、重複を削除する
         merged_layout = _get_unique_list(merged_layout)
+
+        # AREの「1.北海道」はPREの[1.北海道]と同じとみなされてしまうため、
+        # 1行だけ挿入が必要
+        merged_layout.insert(
+            _HOKKAIDO_POSITION, ["", "", "", "", "", "", "", "1", "北海道"]
+        )
 
         # flagのレイアウトを追加
         hq_layout_col: list[str] = [
