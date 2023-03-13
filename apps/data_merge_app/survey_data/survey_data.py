@@ -14,6 +14,7 @@ _BASE_DIR = Path.cwd()
 
 _GET_DICT_KEYS = 0
 _MID = "MID"
+_HQ_NAME = "hq"
 
 
 class SurveyData(BaseModel):
@@ -128,15 +129,15 @@ class SurveyData(BaseModel):
                         count_condition += 1
 
                 if count_condition == all_condition:
-                    row["HQ"] = str(hq_num)
+                    row[_HQ_NAME] = str(hq_num)
                 else:
                     try:
-                        if row["HQ"] != "":
+                        if row[_HQ_NAME] != "":
                             continue
                         else:
-                            row["HQ"] = ""
+                            row[_HQ_NAME] = ""
                     except Exception:
-                        row["HQ"] = ""
+                        row[_HQ_NAME] = ""
 
                 main_data_with_flag.append(row)
 
@@ -191,7 +192,7 @@ class SurveyData(BaseModel):
             for idx, m_data in enumerate(main_data_lists):
                 main_data_with_flag = []
                 for row in m_data.main_data:
-                    row["HQ"] = str(idx + 1)
+                    row[_HQ_NAME] = str(idx + 1)
                     main_data_with_flag.append(row)
                 keys_list += list(main_data_with_flag[_GET_DICT_KEYS].keys())
 
