@@ -8,7 +8,7 @@ let ctx = document.getElementById('myChart').getContext('2d');
 let myRadarChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: larr,
+        labels: larr, // 選択肢の項目名
         datasets: [{
             data:darr,//app.pyのchart_data
             backgroundColor: "rgba(255,0,0,0.2)", // 線の下の塗りつぶしの色

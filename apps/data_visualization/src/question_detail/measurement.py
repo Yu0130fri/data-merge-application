@@ -1,7 +1,8 @@
-from typing import Union
+# from typing import Union
 
 from pydantic import BaseModel
 
 
 class Measurement(BaseModel):
-    chart_data: list[Union[int, float]]  # データのカウント
+    # 選択肢番号: データカウントのdict
+    chart_data: dict[str, int]

@@ -26,7 +26,7 @@ class SingleAnswer(BaseModel):
                 option_name = row[_DESCRIPTION_POSITION]
                 option_dict[option_num] = option_name
 
-        return SingleAnswer(
+        return cls(
             label=label,
             question_description=question_description,
             option_dict=option_dict,
@@ -52,7 +52,7 @@ class MultiAnswer(BaseModel):
                 option_name = row[_DESCRIPTION_POSITION]
                 option_dict[option_num] = option_name
 
-        return MultiAnswer(
+        return cls(
             labels=labels,
             question_description=question_description,
             option_dict=option_dict,
@@ -80,7 +80,7 @@ class MatrixSingleAnswer(BaseModel):
                 label = question_label_list[-1]
                 question_blocks_dict[label] = question_block
                 question_block = [row]
-                question_label_list = []
+                question_label_list = [row[_LABEL_POSITION]]
             else:
                 question_block.append(row)
 
@@ -93,7 +93,7 @@ class MatrixSingleAnswer(BaseModel):
 
             single_answer_dict[label] = single_answer
 
-        return MatrixSingleAnswer(
+        return cls(
             question_description=question_description,
             single_answer_dict=single_answer_dict,
         )
@@ -130,7 +130,7 @@ class MatrixMultiAnswer(BaseModel):
             multi_answer = MultiAnswer.from_lists(multi_answer_block)
             multi_answer_dict[labels] = multi_answer
 
-        return MatrixMultiAnswer(
+        return cls(
             question_description=question_description,
             multi_answer_dict=multi_answer_dict,
         )

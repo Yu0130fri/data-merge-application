@@ -3,13 +3,8 @@ from io import TextIOWrapper
 
 from pydantic import BaseModel
 
-from .question_info import (
-    MatrixMultiAnswer,
-    MatrixSingleAnswer,
-    MultiAnswer,
-    QuestionInfo,
-    SingleAnswer,
-)
+from .question_info import (MatrixMultiAnswer, MatrixSingleAnswer, MultiAnswer,
+                            QuestionInfo, SingleAnswer)
 
 _FIRST_ELEM_FOR_CHECK_VALUE = 0
 _UNUSED_COL = 4
@@ -53,7 +48,7 @@ class LayoutFile(BaseModel):
         question_type = question_type_list[-1]
         question_detail[(question_number, question_type)] = question_block
 
-        return LayoutFile(question_detail=question_detail)
+        return cls(question_detail=question_detail)
 
 
 class Layout(BaseModel):
@@ -62,7 +57,6 @@ class Layout(BaseModel):
     @classmethod
     def from_layout_file(cls, file: TextIOWrapper) -> "Layout":
         layout_file = LayoutFile.from_stringio(file)
-
         question_blocks = layout_file.question_detail
 
         question_info_dict: dict[str, QuestionInfo] = {}
@@ -89,4 +83,4 @@ class Layout(BaseModel):
             )
             question_info_dict[question_number] = question_info
 
-        return Layout(question_info_dict=question_info_dict)
+        return cls(question_info_dict=question_info_dict)
