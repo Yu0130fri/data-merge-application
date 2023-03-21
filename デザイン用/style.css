@@ -1,0 +1,22 @@
+@charset "UTF-8";
+#description {
+  color: #FF9A00;
+}
+
+body {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  min-height: 110vh;
+  position: relative; /*←相対位置*/
+  padding-bottom: 120px; /*←footerの高さ*/
+  box-sizing: border-box;
+}
+
+.hidden {
+  display: none;
+}
+
+footer {
+  width: 100%;
+  position: absolute; /*←絶対位置*/
+  bottom: 0; /*下に固定*/
+}/*# sourceMappingURL=style.css.map */
