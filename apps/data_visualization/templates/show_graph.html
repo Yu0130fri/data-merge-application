@@ -1,0 +1,33 @@
+{% extends 'base.html' %} {% block header %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+{% endblock %} {% block title %}Graph Sample{% endblock %} {% block content %}
+<div class="row my-4">
+  <p>{{ c.graph_title }}</p>
+  <canvas id="myChart"></canvas>
+</div>
+<input
+  type="hidden"
+  id="chart_labels"
+  name="chart_labels"
+  value="{{ c.chart_labels }}"
+/>
+<input
+  type="hidden"
+  id="chart_title"
+  name="chart_title"
+  value="{{ c.chart_title }}"
+/>
+<input
+  type="hidden"
+  id="question_num"
+  name="question_num"
+  value="{{ c.question_num }}"
+/>
+<input
+  type="hidden"
+  id="chart_data"
+  name="chart_data"
+  value="{{ c.chart_data }}"
+/>
+<script type="text/javascript" src="static/js/graph.js"></script>
+{% endblock %}
