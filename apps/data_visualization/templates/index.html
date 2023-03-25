@@ -2,39 +2,70 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 {% endblock %} {% block title %}Graph Sample{% endblock %} {% block content %}
 <div class="container">
-  <!-- <div class="row my-4">
-    <p>{{ c.chart_title }}</p>
-    <canvas id="myChart"></canvas>
-  </div> -->
-  <form action="{{url_for('data_visualization.show_graph')}}" method="post">
-    <input type="text" name="sample-title" />
-    <input
-      type="hidden"
-      id="chart_labels"
-      name="chart_labels"
-      value="{{ c.chart_labels }}"
-    />
-    <input
-      type="hidden"
-      id="chart_title"
-      name="chart_title"
-      value="{{ c.chart_title }}"
-    />
-    <input
-      type="hidden"
-      id="question_num"
-      name="question_num"
-      value="{{ c.question_num }}"
-    />
-    <input
-      type="hidden"
-      id="chart_data"
-      name="chart_data"
-      value="{{ c.chart_data }}"
-    />
+  <form
+    action="{{url_for('data_visualization.index')}}"
+    method="post"
+    enctype="multipart/form-data"
+  >
+    <h4 class="border-bottom pb-2 my-3 text-center">
+      可視化したいデータを入れてください
+    </h4>
 
-    <input type="submit" class="btn btn-primary" value="送信" />
+    <div class="row mt-2 d-flex justify-content-center">
+      <div class="col-sm-5">
+        <label for="rawdata" class="fs-5 card-shadow"
+          >RawDataを選択してください
+          <input
+            type="file"
+            name="rawdata"
+            id="rawdata"
+            class="rawdata"
+            required
+          />
+          <p class="rawdata">選択されていません</p>
+        </label>
+      </div>
+      <div class="col-sm-5">
+        <label for="layout" class="fs-5 card-shadow"
+          >Layoutをしてください
+          <input
+            type="file"
+            name="layout"
+            id="layout"
+            class="layout"
+            required
+          />
+          <p class="layout">選択されていません</p>
+        </label>
+      </div>
+    </div>
+
+    <input type="hidden" name="sample-title" />
+    <div class="text-center">
+      <input
+        type="submit"
+        class="data-submit-btn mt-5 col-md-4"
+        value="可視化してみる！"
+      />
+    </div>
   </form>
 </div>
-<!-- <script type="text/javascript" src="static/js/graph.js"></script> -->
+
+<script
+  src="https://code.jquery.com/jquery-3.6.4.slim.js"
+  integrity="sha256-dWvV84T6BhzO4vG6gWhsWVKVoa4lVmLnpBOZh/CAHU4="
+  crossorigin="anonymous"
+></script>
+<script>
+  $("label.card-shadow > input.rawdata").on("change", function () {
+    let file = $(this).prop("files")[0];
+    $("label.card-shadow > p.rawdata").text(file.name);
+  });
+</script>
+<script>
+  $("label.card-shadow > input.layout").on("change", function () {
+    let file = $(this).prop("files")[0];
+    $("label.card-shadow > p.layout").text(file.name);
+  });
+</script>
 {% endblock %}

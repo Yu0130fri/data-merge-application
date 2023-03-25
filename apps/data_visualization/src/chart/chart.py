@@ -4,12 +4,9 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from ..input_file.input_file import InputFile
-from ..input_file.layout.question_info import (
-    MatrixMultiAnswer,
-    MatrixSingleAnswer,
-    MultiAnswer,
-    SingleAnswer,
-)
+from ..input_file.layout.question_info import (MatrixMultiAnswer,
+                                               MatrixSingleAnswer, MultiAnswer,
+                                               SingleAnswer)
 from ..question_detail import QuestionDetail
 from ..question_detail.dimension import Dimension
 from ..question_detail.measurement import Measurement

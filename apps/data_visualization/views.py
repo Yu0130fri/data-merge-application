@@ -1,7 +1,11 @@
+import os
+import shutil
 from pathlib import Path
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, current_app, flash, render_template, request
+from werkzeug.utils import secure_filename
 
+from ..models.recreate_dir import recreate_dir
 from .src.chart import Chart
 
 data_visualization_app = Blueprint(
@@ -13,44 +17,72 @@ _DATA_DIR = _SAMPLE_PATH / "tests/test_data"
 _LAYOUT_DIR = _DATA_DIR / "test_layout/test_for_chart_data.txt"
 _RAWDATA_DIR = _DATA_DIR / "test_main_data/test_chart_data.txt"
 
+_LAYOUT_CLASS_NAME = "layout"
+_RAWDATA_CLASS_NAME = "rawdata"
 
-@data_visualization_app.route("/", methods=["GET"])
+ALLOWED_EXTENSIONS = {"txt"}
+
+
+@data_visualization_app.route("/", methods=["GET", "POST"])
 def index():
-    chart = Chart.from_input_file(rawdata_path=_RAWDATA_DIR, layout_path=_LAYOUT_DIR)
+    rawdata_path = current_app.config["CHART_RAWDATA_FOLDER"]
+    layout_path = current_app.config["CHART_LAYOUT_FOLDER"]
 
-    query_data = chart.query("Q4")
+    # ファイルを保存しないため、各pathにファイルがある場合は削除
+    # その後、空のディレクトリを作成しておく
+    recreate_dir(rawdata_path)
+    recreate_dir(layout_path)
 
-    # c = {
-    #     "chart_title": "グラフサンプル",  # 設問文
-    #     "chart_labels": "項目1, 項目２, 項目３, 項目４,項目５",  # 回答内容 # 自動で決まる
-    #     "chart_data": "4, 7, 8, 5, 6",  # データのカウント
-    #     "question_num": "設問番号",
-    # }
-    c = {
-        "chart_title": query_data.dimension.question_description,  # 設問文
-        "chart_labels": query_data.dimension.option_data,  # 回答内容 # 自動で決まる
-        "chart_data": list(query_data.measurement.chart_data.values()),  # データのカウント
-        "question_num": query_data.dimension.question_number,
-    }
-    return render_template("index.html", c=c)
+    if request.method == "POST":
+        try:
+            rawdata = request.files[_RAWDATA_CLASS_NAME]
+        except ValueError:
+            flash("Rawdataが選択されていません")
+            raise ValueError()
+
+        rawdata_filename = rawdata.filename
+
+        # クロスサイトインジェクション対策
+        if rawdata and _allowed_file(rawdata_filename):
+            rawdata_filename = secure_filename(rawdata_filename)
+            rawdata_path = Path(rawdata_path, rawdata_filename)
+
+            rawdata.save(rawdata_path)
+
+        layout = request.files[_LAYOUT_CLASS_NAME]
+        layout_filename = layout.filename
+        if layout_filename == "":
+            flash("Layoutが選択されていません")
+
+        # クロスサイトインジェクション対策
+        if layout and _allowed_file(layout_filename):
+            layout_filename = secure_filename(layout_filename)
+            layout_path = Path(layout_path, rawdata_filename)
+
+            layout.save(layout_path)
+
+        chart = Chart.from_input_file(
+            rawdata_path=_RAWDATA_DIR, layout_path=_LAYOUT_DIR
+        )
+
+        query_data = chart.query("Q8")
+
+        chart = {
+            "chart_title": query_data.dimension.question_description,  # 設問文
+            "chart_labels": query_data.dimension.option_data,  # 回答内容 # 自動で決まる
+            "chart_data": list(query_data.measurement.chart_data.values()),  # データのカウント
+            "question_num": query_data.dimension.question_number,
+        }
+
+        if os.path.exists(rawdata_path):
+            os.remove(rawdata_path)
+        if os.path.exists(layout_path):
+            os.remove(layout_path)
+
+        return render_template("show_graph.html", chart=chart)
+
+    return render_template("index.html")
 
 
-@data_visualization_app.route("/visualization", methods=["GET", "POST"])
-def show_graph():
-    if request.method != "POST":
-        raise ValueError()
-
-    graph_title = request.form["sample-title"]
-    chart_title = request.form["chart_title"]
-    chart_labels = request.form["chart_labels"]
-    chart_data = request.form["chart_data"]
-    question_num = request.form["question_num"]
-
-    c = {
-        "graph_title": graph_title,
-        "chart_title": chart_title,
-        "chart_labels": chart_labels,
-        "chart_data": chart_data,
-        "question_num": question_num,
-    }
-    return render_template("show_graph.html", c=c)
+def _allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS

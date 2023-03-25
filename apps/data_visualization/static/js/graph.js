@@ -1,17 +1,38 @@
 let title = document.getElementById('chart_title').value;
 let question_num = document.getElementById('question_num').value;
-let dstr = String(document.getElementById('chart_data').value);
-let darr = dstr.split(',');
-let dlabel = String(document.getElementById('chart_labels').value);
-let larr = dlabel.split(',');
+
+let chart_data_list = String(document.getElementById('chart_data').value);
+let chart_values = chart_data_list.split(',');
+
+let chart_label_list = String(document.getElementById('chart_labels').value);
+let chart_labels = chart_label_list.replace("[", "").replace("]", "").replace(" ", "").replace("'", "").split(',');
 let ctx = document.getElementById('myChart').getContext('2d');
-console.log(larr);
+
+function split_word_20letters(word_list){
+    let splitted_word_list = []
+    word_list.forEach(word => {
+        let chunk_list = []
+        if (word.length > 14){
+            for(let i = 0; i < word.length % 14; i++){
+                chunk_list.push(word.substr(i * 14, 14))
+            }
+        }else{
+            chunk_list.push(word)
+        }
+        splitted_word_list.push(chunk_list)
+    });
+
+    return splitted_word_list
+}
+
+// chart_labels.map((v)=>v.replace('ー','丨').split(""))
+
 let myRadarChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: larr, // 選択肢の項目名
+        labels: split_word_20letters(chart_labels), // 選択肢の項目名　縦書きで表示
         datasets: [{
-            data:darr,//app.pyのchart_data
+            data:chart_values, //各データの集計地
             backgroundColor: "rgba(255,0,0,0.2)", // 線の下の塗りつぶしの色
             borderColor: "red",                   // 線の色
             borderWidth: 1,                       // 線の幅
@@ -26,7 +47,10 @@ let myRadarChart = new Chart(ctx, {
             fontSize: 20,       // タイトルのフォント
             text: title         //app.pyのchart_title
         },
-        scales: {                          // 軸設定
+        scales: { // 軸設定
+            ticks: {
+                beginAtZero: true,
+            },
             xAxes: [                           // Ｘ軸設定
                 {
                     display: true,                // 表示の有無
@@ -44,10 +68,22 @@ let myRadarChart = new Chart(ctx, {
                     ticks: { // 目盛り
                         fontColor: "red", // 目盛りの色
                         fontSize: 14, // フォントサイズ
-                        autoSkip: false
+                        autoSkip: false,
+                        maxRotation: 0,
                     },
                 }
             ],
+            yAxes: [
+                {
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMin: 0,
+                    }
+                }
+            ],
+        },
+        layout: {
+            padding: {x: 20, y: 30}
         }
     }
     // options: {

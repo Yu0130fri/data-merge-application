@@ -13,6 +13,10 @@ class BaseConfig:
     UPLOAD_MAIN_LAYOUT_FOLDER = Path.joinpath(
         basedir, "apps", "txt_files", "layout", "main"
     )
+    CHART_RAWDATA_FOLDER = Path.joinpath(
+        basedir, "apps", "txt_files", "chart", "rawdata"
+    )
+    CHART_LAYOUT_FOLDER = Path.joinpath(basedir, "apps", "txt_files", "chart", "layout")
     OUTPUT_FOLDER = Path.joinpath(basedir, "output_files")
 
 
