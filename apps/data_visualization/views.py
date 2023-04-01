@@ -15,11 +15,6 @@ data_visualization_app = Blueprint(
     static_folder="static",
 )
 
-_SAMPLE_PATH = Path(__file__).parent.parent.parent
-_DATA_DIR = _SAMPLE_PATH / "tests/test_data"
-_LAYOUT_DIR = _DATA_DIR / "test_layout/test_for_chart_data.txt"
-_RAWDATA_DIR = _DATA_DIR / "test_main_data/test_chart_data.txt"
-
 _LAYOUT_CLASS_NAME = "layout"
 _RAWDATA_CLASS_NAME = "rawdata"
 
@@ -65,7 +60,7 @@ def index():
             layout.save(layout_path)
 
         chart = Chart.from_input_file(
-            rawdata_path=_RAWDATA_DIR, layout_path=_LAYOUT_DIR
+            rawdata_path=rawdata_path, layout_path=layout_path
         )
 
         # try:
