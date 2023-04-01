@@ -1,6 +1,6 @@
 import os
-import shutil
 from pathlib import Path
+from typing import Any
 
 from flask import Blueprint, current_app, flash, render_template, request
 from werkzeug.utils import secure_filename
@@ -9,7 +9,10 @@ from ..models.recreate_dir import recreate_dir
 from .src.chart import Chart
 
 data_visualization_app = Blueprint(
-    "data_visualization", __name__, template_folder="templates", static_folder="static"
+    "data_visualization",
+    __name__,
+    template_folder="templates",
+    static_folder="static",
 )
 
 _SAMPLE_PATH = Path(__file__).parent.parent.parent
@@ -65,21 +68,37 @@ def index():
             rawdata_path=_RAWDATA_DIR, layout_path=_LAYOUT_DIR
         )
 
-        query_data = chart.query("Q8")
+        # try:
+        #     query_data = chart.query(request.form["show-question"])
+        # except Exception:
+        #     query_data = chart.query("Q4")
 
-        chart = {
-            "chart_title": query_data.dimension.question_description,  # 設問文
-            "chart_labels": query_data.dimension.option_data,  # 回答内容 # 自動で決まる
-            "chart_data": list(query_data.measurement.chart_data.values()),  # データのカウント
-            "question_num": query_data.dimension.question_number,
-        }
+        chart_list: list[dict[str, Any]] = []  # type: ignore
+        html_id_list: list[str] = []  # type: ignore
+        for idx, q_name in enumerate(chart.extract_answer_list()):
+            idx += 1
+            html_id_list.append(str(idx))
+            query_data = chart.query(q_name)
+
+            chart_data = {
+                "chart_title": query_data.dimension.question_description,  # 設問文
+                "chart_labels": query_data.dimension.option_data,  # 回答内容 # 自動で決まる
+                "chart_data": list(
+                    query_data.measurement.chart_data.values()
+                ),  # データのカウント
+                "question_num": query_data.dimension.question_number,
+            }
+
+            chart_list.append(chart_data)
 
         if os.path.exists(rawdata_path):
             os.remove(rawdata_path)
         if os.path.exists(layout_path):
             os.remove(layout_path)
 
-        return render_template("show_graph.html", chart=chart)
+        return render_template(
+            "show_graph.html", chart_data_list=zip(chart_list, html_id_list)
+        )
 
     return render_template("index.html")
 

@@ -12,11 +12,11 @@ body {
 .card-shadow{
     background-color:  rgba(115, 139, 237, 0.842);
     height: 6em;
-    box-shadow: 5px 5px 5px rgba(0,0,0,0.1);
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.5);
     padding: 1.5rem 1rem;
     border-radius: 5px;
     width: 100%;
-    border: solid 0.5px none;
+    border: solid 0.8px none;
 }
 
 .card-shadow > input{
@@ -30,6 +30,11 @@ body {
 .card-shadow:hover{
     box-shadow: 0 0 0 white;
     cursor: pointer;
+}
+
+.choice-question-area{
+    display: block;
+    margin: 0 auto;
 }
 
 .data-submit-btn{
