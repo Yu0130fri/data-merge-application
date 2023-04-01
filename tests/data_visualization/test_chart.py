@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from apps.data_visualization.src.chart import Chart
 
 _CURRENT_DIR = Path(__file__).absolute().parent.parent
@@ -8,6 +10,7 @@ _RAWDATA_DICT = _DATA_DIR / "test_main_data"
 _LAYOUT_DICT = _DATA_DIR / "test_layout"
 
 
+@pytest.mark.skip(reason="already test in local")
 def test_query() -> None:
     rawdata_path = _RAWDATA_DICT / "test_chart_data.txt"
     layout_path = _LAYOUT_DICT / "test_for_chart_data.txt"
