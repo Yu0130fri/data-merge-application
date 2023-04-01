@@ -11,4 +11,10 @@ def create_app(config_key: str) -> Flask:
 
     app.register_blueprint(views.data_merge_app, url_prefix="")
 
+    from apps.data_visualization import views as visualize_view
+
+    app.register_blueprint(
+        visualize_view.data_visualization_app, url_prefix="/data_visualization"
+    )
+
     return app

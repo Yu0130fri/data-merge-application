@@ -1,0 +1,81 @@
+{% extends 'base.html' %} {% block header %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+{% endblock %} {% block title %}Graph Sample{% endblock %} {% block content %}
+<div class="container">
+  <form
+    action="{{url_for('data_visualization.index')}}"
+    method="post"
+    enctype="multipart/form-data"
+  >
+    <h4 class="border-bottom pb-2 my-3 text-center">
+      可視化したいデータを入れてください
+    </h4>
+
+    <div class="row mt-2 d-flex justify-content-center">
+      <div class="col-sm-5">
+        <label for="rawdata" class="fs-5 card-shadow"
+          >RawDataを選択してください
+          <input
+            type="file"
+            name="rawdata"
+            id="rawdata"
+            class="rawdata"
+            required
+          />
+          <p class="rawdata">選択されていません</p>
+        </label>
+      </div>
+      <div class="col-sm-5">
+        <label for="layout" class="fs-5 card-shadow"
+          >Layoutをしてください
+          <input
+            type="file"
+            name="layout"
+            id="layout"
+            class="layout"
+            required
+          />
+          <p class="layout">選択されていません</p>
+        </label>
+      </div>
+    </div>
+
+    <!-- <div class="row choice-question-area col-sm-5">
+      <label for="show-question">表示したい設問（のちに削除予定）</label>
+      <input
+        type="text"
+        id="show-question"
+        name="show-question"
+        class="choice-question-area"
+        autocomplete="off"
+      />
+    </div> -->
+
+    <div class="text-center">
+      <input
+        type="submit"
+        class="data-submit-btn mt-5 col-md-4"
+        value="可視化してみる！"
+      />
+    </div>
+  </form>
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.6.4.slim.js"
+  integrity="sha256-dWvV84T6BhzO4vG6gWhsWVKVoa4lVmLnpBOZh/CAHU4="
+  crossorigin="anonymous"
+></script>
+<script>
+  $("label.card-shadow > input.rawdata").on("change", function () {
+    let file = $(this).prop("files")[0];
+    $("label.card-shadow > p.rawdata").text(file.name);
+  });
+</script>
+<script>
+  $("label.card-shadow > input.layout").on("change", function () {
+    let file = $(this).prop("files")[0];
+    $("label.card-shadow > p.layout").text(file.name);
+  });
+</script>
+{% endblock %}

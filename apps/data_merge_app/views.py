@@ -94,7 +94,7 @@ def index():
 
             # 本調査の読み込み
             i = 0
-            file_name_list: list[str] = []
+            file_name_list: list[str] = []  # type: ignore
             while True:
                 try:
                     file_id = "main-" + str(i)
@@ -184,7 +184,7 @@ def index():
                     mar_flag = "marriedAttribute-" + str(flg_num)
                     chi_flag = "childAttribute-" + str(flg_num)
 
-                    condition_dict: dict[str, list[int | str]] = {}
+                    condition_dict: dict[str, list[int | str]] = {}  # type: ignore
                     try:
                         flag_names.append(str(request.form[flag_name]))
 
@@ -235,8 +235,6 @@ def index():
         # マージしたデータを出力
         for key, value in request.form.items():
             print(key, value)
-
-        print("attribute_conditions", attribute_conditions)
 
         survey_data.output(output_file_path, attribute_conditions, attribute_flg)
         survey_data.output_layout(output_layout_file_path, flag_names)

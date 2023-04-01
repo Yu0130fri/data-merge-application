@@ -1,0 +1,63 @@
+body {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  background-color: rgba(213, 233, 245, 0.972);
+}
+
+.container {
+  margin: 0 auto;
+}
+
+.card-shadow {
+  background-color: rgba(115, 139, 237, 0.842);
+  height: 6em;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem 1rem;
+  border-radius: 5px;
+  width: 100%;
+  border: solid 0.8px none;
+}
+
+.card-shadow > input {
+  display: none;
+}
+
+.card-shadow > p {
+  font-size: 1rem;
+}
+
+.card-shadow:hover {
+  box-shadow: 0 0 0 white;
+  cursor: pointer;
+}
+
+.choice-question-area {
+  display: block;
+  margin: 0 auto;
+}
+
+.data-submit-btn {
+  width: 20%;
+  height: 3rem;
+  border-radius: 30px;
+  background-color: rgba(115, 139, 237, 0.842);
+  border: none;
+  font-weight: bold;
+  box-shadow: 5px 5px 5px rgba(115, 139, 237, 0.5);
+  color: rgba(2, 2, 2, 0.799);
+}
+.data-submit-btn:hover {
+  animation: 1s flash;
+  box-shadow: 0px 0px 0px rgba(115, 139, 237, 0.5);
+}
+.data-submit-btn:active, .data-submit-btn:focus {
+  border-bottom-width: 0;
+  margin-top: 5px;
+  background: #ff9300;
+}
+
+.canvas-container {
+  width: calc(100% - 40px);
+  height: 1000px;
+  overflow: scroll;
+  margin: 20px;
+}/*# sourceMappingURL=style.css.map */

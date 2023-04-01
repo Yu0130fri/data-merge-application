@@ -1,5 +1,4 @@
 import csv
-from glob import glob
 from pathlib import Path
 
 from flask import flash
