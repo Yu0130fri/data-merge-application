@@ -63,36 +63,54 @@ def index():
             rawdata_path=rawdata_path, layout_path=layout_path
         )
 
-        # try:
-        #     query_data = chart.query(request.form["show-question"])
-        # except Exception:
-        #     query_data = chart.query("Q4")
-
+        # SA, MA回答のグラフ
         chart_list: list[dict[str, Any]] = []  # type: ignore
         html_id_list: list[str] = []  # type: ignore
-        for idx, q_name in enumerate(chart.extract_answer_list()):
-            idx += 1
-            html_id_list.append(str(idx))
-            query_data = chart.query(q_name)
+        answer_type_dict = chart.extract_answer_type_dict()
+        html_id: int = 0
+        for q_name, q_type in answer_type_dict.items():
+            if q_type in ["S", "M"]:
+                html_id += 1
+                html_id_list.append(str(html_id))
+                query_data = chart.query(q_name)
 
-            chart_data = {
-                "chart_title": query_data.dimension.question_description,  # 設問文
-                "chart_labels": query_data.dimension.option_data,  # 回答内容 # 自動で決まる
-                "chart_data": list(
-                    query_data.measurement.chart_data.values()
-                ),  # データのカウント
-                "question_num": query_data.dimension.question_number,
-            }
-
-            chart_list.append(chart_data)
+                chart_data = {
+                    "chart_title": query_data.dimension.question_description,  # 設問文
+                    "chart_labels": query_data.dimension.option_data,  # 回答内容 # 自動で決まる
+                    "chart_data": list(
+                        query_data.measurement.chart_data.values()
+                    ),  # データのカウント
+                    "question_num": query_data.dimension.question_number,
+                }
+                chart_list.append(chart_data)
+            elif q_type in ["MTS", "MTM"]:
+                query_data_list = chart.matrix_query(q_name)
+                for query_data in query_data_list:
+                    html_id += 1
+                    html_id_list.append(str(html_id))
+                    chart_data = {
+                        "chart_title": query_data.dimension.question_description,
+                        "chart_labels": query_data.dimension.option_data,
+                        "chart_data": list(
+                            query_data.measurement.chart_data.values()
+                        ),  # データのカウント
+                        "question_num": query_data.dimension.question_number,
+                    }
+                    chart_list.append(chart_data)
+            else:
+                continue
 
         if os.path.exists(rawdata_path):
             os.remove(rawdata_path)
         if os.path.exists(layout_path):
             os.remove(layout_path)
 
+        check_show_pie_chart = request.form.get("pie-check")
+
         return render_template(
-            "show_graph.html", chart_data_list=zip(chart_list, html_id_list)
+            "show_graph.html",
+            chart_data_list=zip(chart_list, html_id_list),
+            check_show_pie_chart=check_show_pie_chart,
         )
 
     return render_template("index.html")

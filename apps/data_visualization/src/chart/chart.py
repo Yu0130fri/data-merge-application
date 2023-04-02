@@ -4,9 +4,12 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from ..input_file.input_file import InputFile
-from ..input_file.layout.question_info import (MatrixMultiAnswer,
-                                               MatrixSingleAnswer, MultiAnswer,
-                                               SingleAnswer)
+from ..input_file.layout.question_info import (
+    MatrixMultiAnswer,
+    MatrixSingleAnswer,
+    MultiAnswer,
+    SingleAnswer,
+)
 from ..question_detail import QuestionDetail
 from ..question_detail.dimension import Dimension
 from ..question_detail.measurement import Measurement
@@ -69,7 +72,9 @@ class Chart(BaseModel):
                 option_data = list(single_answer.option_dict.values())
                 question_label = [single_answer.label]
                 chart_data = self._count_single_answer(
-                    single_answer.label, question_data
+                    label=single_answer.label,
+                    rawdata=question_data,
+                    question_option_list=list(single_answer.option_dict.keys()),
                 )
 
                 dimension = Dimension(
@@ -115,6 +120,8 @@ class Chart(BaseModel):
 
         for row in rawdata:
             checked_option = row[label]
+            if checked_option == "":
+                continue
             calc_dict[checked_option] += 1
 
         return calc_dict
@@ -132,16 +139,11 @@ class Chart(BaseModel):
 
         return calc_dict
 
-    def extract_answer_list(self) -> list[str]:
-        """SA, MA, MTS, MTMの質問番号を格納したリストを返す"""
+    def extract_answer_type_dict(self) -> dict[str, str]:
+        """質問番号: 質問タイプの辞書を返す"""
         question_dict = self.input_file.layout.question_info_dict
 
-        answer_list: list[str] = []
-        for question_number, question_info in question_dict.items():
-            question_type = question_info.question_type
-
-            # if question_type in ["S", "M", "MTS", "MTM"]:
-            if question_type in ["S", "M"]:
-                answer_list.append(question_number)
-
-        return answer_list
+        return {
+            question_number: question_info.question_type
+            for question_number, question_info in question_dict.items()
+        }
