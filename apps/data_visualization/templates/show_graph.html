@@ -32,8 +32,20 @@
   name="chart_data-{{ id }}"
   value="{{ chart_data.chart_data }}"
 />
-
 {% endfor %}
+
+<!-- ###-->
+<input
+  type="hidden"
+  name="pie-check"
+  value="{{check_show_pie_chart}}"
+  id="pie"
+/>
+<div class="my-4">
+  <canvas id="myChart-100"></canvas>
+</div>
+
+<!-- ### -->
 
 <script type="text/javascript" src="static/js/graph.js"></script>
 {% endblock %}
