@@ -68,6 +68,7 @@ def index():
         html_id_list: list[str] = []  # type: ignore
         answer_type_dict = chart.extract_answer_type_dict()
         html_id: int = 0
+        question_num2question_type_dict: dict[str, str] = {}
         for q_name, q_type in answer_type_dict.items():
             if q_type in ["S", "M"]:
                 html_id += 1
@@ -83,12 +84,19 @@ def index():
                     "question_num": query_data.dimension.question_number,
                 }
                 chart_list.append(chart_data)
+
+                question_num2question_type_dict[
+                    query_data.dimension.question_number
+                ] = q_type
             elif q_type in ["MTS", "MTM"]:
-                query_data_list = chart.matrix_query(q_name)
+                query_data_list, matrix_question_description = chart.matrix_query(
+                    q_name
+                )
                 for query_data in query_data_list:
                     html_id += 1
                     html_id_list.append(str(html_id))
                     chart_data = {
+                        "matrix_question_description": matrix_question_description,
                         "chart_title": query_data.dimension.question_description,
                         "chart_labels": query_data.dimension.option_data,
                         "chart_data": list(
@@ -97,6 +105,9 @@ def index():
                         "question_num": query_data.dimension.question_number,
                     }
                     chart_list.append(chart_data)
+                    question_num2question_type_dict[
+                        query_data.dimension.question_number
+                    ] = q_type
             else:
                 continue
 
@@ -111,6 +122,7 @@ def index():
             "show_graph.html",
             chart_data_list=zip(chart_list, html_id_list),
             check_show_pie_chart=check_show_pie_chart,
+            question_num2question_type_dict=question_num2question_type_dict,
         )
 
     return render_template("index.html")

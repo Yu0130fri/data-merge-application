@@ -1,12 +1,26 @@
 {% extends 'base.html' %} {% block header %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-{% endblock %} {% block title %}Graph Sample{% endblock %} {% block content %}
-{% for chart_data, id in chart_data_list %}
+{% endblock %}
+<span></span>
+{% block title %}Graph Sample{% endblock %}
+<span></span>
+{% block content %} {% for chart_data, id in chart_data_list %}
 <input type="hidden" name="{{chart_data}}" />
 <input type="hidden" name="{{chart_data['chart_labels-1']}}" />
-<div class="my-4 canvas-container">
-  <p>{{ chart_data.graph_title }}</p>
+<div class="my-4 canvas-container" id="chart-{{ id }}">
+  <p class="matrix-question-description">
+    {{ chart_data.matrix_question_description }}
+  </p>
   <canvas id="myChart-{{ id }}"></canvas>
+  <!-- 画像として保存する関数の実装 -->
+  <!-- <input
+    type="button"
+    ,
+    class="btn btn-primary"
+    id="jpg-download-{{id}}"
+    onclick="downloadJpg(this.id)"
+    value="画像として保存"
+  /> -->
 </div>
 <input
   type="hidden"

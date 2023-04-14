@@ -72,6 +72,9 @@ for(let i = 1; i<=canvas_count; i++){
             }
         }
     });
+    
+
+
 }
 
 
@@ -105,7 +108,7 @@ if (check_show_pie_chart == "on"){
             responsive: true,
             title: {                // タイトル
                 display: true,      // 表示する
-                fontSize: 20,       // タイトルのフォント
+                fontSize: 15,       // タイトルのフォント
                 text: title_pie         //app.pyのchart_title
             },
             scales: { // 軸設定
@@ -170,4 +173,9 @@ function split_word_20letters(word_list){
     });
 
     return splitted_word_list
+}
+
+function downloadJpg(id){
+    position = document.getElementById(`${id}`);
+    position.click();
 }
