@@ -1,12 +1,24 @@
 {% extends 'base.html' %} {% block header %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-{% endblock %} {% block title %}Graph Sample{% endblock %} {% block content %}
-{% for chart_data, id in chart_data_list %}
-<input type="hidden" name="{{chart_data}}" />
-<input type="hidden" name="{{chart_data['chart_labels-1']}}" />
-<div class="my-4 canvas-container">
-  <p>{{ chart_data.graph_title }}</p>
+{% endblock %}
+<span></span>
+{% block title %}Graph Sample{% endblock %}
+<span></span>
+{% block content %} {% for chart_data, id in chart_data_list %}
+<div class="my-4 canvas-container" id="chart-{{ id }}">
+  <p class="matrix-question-description">
+    {{ chart_data.matrix_question_description }}
+  </p>
   <canvas id="myChart-{{ id }}"></canvas>
+  <!-- 画像として保存する関数の実装 -->
+  <!-- <input
+    type="button"
+    ,
+    class="btn btn-primary"
+    id="jpg-download-{{id}}"
+    onclick="downloadJpg(this.id)"
+    value="画像として保存"
+  /> -->
 </div>
 <input
   type="hidden"
@@ -34,18 +46,55 @@
 />
 {% endfor %}
 
-<!-- ###-->
 <input
   type="hidden"
   name="pie-check"
   value="{{check_show_pie_chart}}"
   id="pie"
 />
-<div class="my-4">
-  <canvas id="myChart-100"></canvas>
-</div>
 
-<!-- ### -->
+{% if check_show_pie_chart %} {% for pie_data, id in pie_list %}
+<div class="my-4 canvas-container-pie" id="pie-{{ id }}">
+  <p class="matrix-question-description">
+    {{ pie_data.matrix_question_description }}
+  </p>
+  <canvas id="myPie-{{ id }}"></canvas>
+  <!-- 画像として保存する関数の実装 -->
+  <!-- <input
+      type="button"
+      ,
+      class="btn btn-primary"
+      id="jpg-download-{{id}}"
+      onclick="downloadJpg(this.id)"
+      value="画像として保存"
+    /> -->
+</div>
+<input
+  type="hidden"
+  id="pie_labels-{{ id }}"
+  name="pie_labels-{{ id }}"
+  value="{{ pie_data.pie_labels }}"
+/>
+<input
+  type="hidden"
+  id="pie_title-{{ id }}"
+  name="pie_title-{{ id }}"
+  value="{{ pie_data.pie_title }}"
+/>
+<input
+  type="hidden"
+  id="pie_question_num-{{ id }}"
+  name="pie_question_num-{{ id }}"
+  value="{{ pie_data.question_num }}"
+/>
+<input
+  type="hidden"
+  id="pie_data-{{ id }}"
+  name="pie_data-{{ id }}"
+  value="{{ pie_data.pie_data }}"
+/>
+
+{% endfor %} {% endif %}
 
 <script type="text/javascript" src="static/js/graph.js"></script>
 {% endblock %}

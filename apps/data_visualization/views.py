@@ -65,9 +65,15 @@ def index():
 
         # SA, MA回答のグラフ
         chart_list: list[dict[str, Any]] = []  # type: ignore
+        pie_list: list[dict[str, Any]] = []  # type: ignore
+        
         html_id_list: list[str] = []  # type: ignore
-        answer_type_dict = chart.extract_answer_type_dict()
         html_id: int = 0
+        answer_type_dict = chart.extract_answer_type_dict()
+        
+        pie_html_id: int = 0
+        pie_html_id_list: list[str] = []
+        
         for q_name, q_type in answer_type_dict.items():
             if q_type in ["S", "M"]:
                 html_id += 1
@@ -83,12 +89,30 @@ def index():
                     "question_num": query_data.dimension.question_number,
                 }
                 chart_list.append(chart_data)
+
+                if q_type == "S":
+                    pie_html_id += 1
+                    pie_html_id_list.append(pie_html_id)
+                    
+                    pie_data = {
+                        "pie_title": query_data.dimension.question_description,  # 設問文
+                        "pie_labels": query_data.dimension.option_data,  # 回答内容 # 自動で決まる
+                        "pie_data": list(
+                            query_data.measurement.chart_data.values()
+                        ),  # データのカウント
+                        "question_num": query_data.dimension.question_number,
+                    }
+                    pie_list.append(pie_data)
+
             elif q_type in ["MTS", "MTM"]:
-                query_data_list = chart.matrix_query(q_name)
+                query_data_list, matrix_question_description = chart.matrix_query(
+                    q_name
+                )
                 for query_data in query_data_list:
                     html_id += 1
                     html_id_list.append(str(html_id))
                     chart_data = {
+                        "matrix_question_description": matrix_question_description,
                         "chart_title": query_data.dimension.question_description,
                         "chart_labels": query_data.dimension.option_data,
                         "chart_data": list(
@@ -97,6 +121,22 @@ def index():
                         "question_num": query_data.dimension.question_number,
                     }
                     chart_list.append(chart_data)
+                
+                if q_type == "MTS":
+                    for query_data in query_data_list:
+                        pie_html_id += 1
+                        pie_html_id_list.append(str(pie_html_id))
+                        pie_data = {
+                            "matrix_question_description": matrix_question_description,
+                            "pie_title": query_data.dimension.question_description,
+                            "pie_labels": query_data.dimension.option_data,
+                            "pie_data": list(
+                                query_data.measurement.chart_data.values()
+                            ),  # データのカウント
+                            "question_num": query_data.dimension.question_number,
+                        }
+                        pie_list.append(pie_data)
+
             else:
                 continue
 
@@ -111,6 +151,7 @@ def index():
             "show_graph.html",
             chart_data_list=zip(chart_list, html_id_list),
             check_show_pie_chart=check_show_pie_chart,
+            pie_list=zip(pie_list, pie_html_id_list),
         )
 
     return render_template("index.html")

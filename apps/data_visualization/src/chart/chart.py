@@ -58,7 +58,15 @@ class Chart(BaseModel):
 
         return QuestionDetail(dimension=dimension, measurement=measurement)
 
-    def matrix_query(self, question_number: str) -> list[QuestionDetail]:
+    def matrix_query(self, question_number: str) -> tuple[list[QuestionDetail], str]:
+        """マトリクス形式の設問のデータを抽出する
+
+        Args:
+            question_number (str): 質問番号
+
+        Returns:
+            tuple[list[QuestionDetail], str]: 各マトリクスの一つ一つのQuestionDetail、マトリクス全体の設問文
+        """
         question_info = self.input_file.layout.question_info_dict[question_number]
         question_data = self.input_file.rawdata.data
 
@@ -67,8 +75,10 @@ class Chart(BaseModel):
         question_detail = question_info.question_detail
 
         question_detail_list: list[QuestionDetail] = []
+        q_detail: QuestionDetail = None
         if type(question_detail) is MatrixSingleAnswer:
             for item_name, single_answer in question_detail.single_answer_dict.items():
+                single_answer_description = single_answer.question_description
                 option_data = list(single_answer.option_dict.values())
                 question_label = [single_answer.label]
                 chart_data = self._count_single_answer(
@@ -78,7 +88,7 @@ class Chart(BaseModel):
                 )
 
                 dimension = Dimension(
-                    question_description=question_description,
+                    question_description=single_answer_description,
                     question_number=item_name,
                     question_type=question_type,
                     question_label=question_label,
@@ -86,19 +96,18 @@ class Chart(BaseModel):
                 )
                 measurement = Measurement(chart_data=chart_data)
 
-                q_detail: QuestionDetail = QuestionDetail(
-                    dimension=dimension, measurement=measurement
-                )
+                q_detail = QuestionDetail(dimension=dimension, measurement=measurement)
                 question_detail_list.append(q_detail)
 
         elif type(question_detail) is MatrixMultiAnswer:
             for labels, multi_answer in question_detail.multi_answer_dict.items():
+                multi_answer_description = multi_answer.question_description
                 option_data = list(multi_answer.option_dict.values())
                 question_label = labels
                 chart_data = self._count_multi_answer(question_label, question_data)
 
                 dimension = Dimension(
-                    question_description=question_description,
+                    question_description=multi_answer_description,
                     question_number=item_name,
                     question_type=question_type,
                     question_label=question_label,
@@ -106,12 +115,10 @@ class Chart(BaseModel):
                 )
                 measurement = Measurement(chart_data=chart_data)
 
-                q_detail: QuestionDetail = QuestionDetail(
-                    dimension=dimension, measurement=measurement
-                )
+                q_detail = QuestionDetail(dimension=dimension, measurement=measurement)
                 question_detail_list.append(q_detail)
 
-        return question_detail_list
+        return question_detail_list, question_description
 
     def _count_single_answer(
         self, label: str, rawdata: list[dict[str, str]], question_option_list: list[str]
